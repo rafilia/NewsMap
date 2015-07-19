@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">NewsMap</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">NewsMap</string>
 
     <string name="app_settings">Setting</string>
+    <string name="center_button">Center</string>
 </resources>

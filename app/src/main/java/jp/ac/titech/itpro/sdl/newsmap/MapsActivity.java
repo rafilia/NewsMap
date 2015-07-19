@@ -1,25 +1,46 @@
 package jp.ac.titech.itpro.sdl.newsmap;
 
+import android.content.DialogInterface;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 public class MapsActivity extends FragmentActivity {
+    private final static String TAG = "MapsActivity";
+
+    private final static LatLng INITIAL_LOCATION = new LatLng(38.564, 138.978);
+    private final static float INITIAL_ZOOM_LEVEL = (float) 5.5;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
+    private Button centerButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+
+        centerButton = (Button) findViewById(R.id.centerButton);
+        centerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+            }
+        });
     }
 
     @Override
@@ -57,6 +78,7 @@ public class MapsActivity extends FragmentActivity {
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
+                mMap.getUiSettings().setZoomControlsEnabled(true);
                 setUpMap();
             }
         }
@@ -69,6 +91,7 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        //mMap.addMarker(new MarkerOptions().position(INITIAL_LOCATION).title("Marker"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
     }
 }
