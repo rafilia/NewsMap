@@ -13,6 +13,8 @@ import org.jsoup.Jsoup;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by tm on 2015/07/19.
@@ -22,6 +24,10 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
     private MapsActivity mMapsActivity;
     private ArrayList<NewsInfo> mNewsInfo;
     private ProgressDialog mProgressDialog;
+
+    // for location search
+    private final static String address_re = "((北海道|東京都|(京都|大阪)府|(鹿児島|神奈川|和歌山)県|.{2}県).{1,8}(村|町|市|区))";
+    private final static Pattern address_pattern = Pattern.compile(address_re);
 
     public RSSLoader (MapsActivity activity, ArrayList<NewsInfo> newsinfo){
         mMapsActivity = activity;
@@ -51,22 +57,27 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                 String title = entry.getTitle();
                 String entry_url = entry.getLink();
 
-                Log.i(TAG, title);
-                Log.i(TAG, entry_url);
+                Log.i(TAG+"/title", title);
+                Log.i(TAG+"/entry url", entry_url);
 
                 // GET 'Detailed Link'
                 org.jsoup.nodes.Document doc = Jsoup.connect(entry_url).get();
                 String detailed_link = doc.select("a.newsLink").first().attr("href");
 
-                Log.i(TAG, detailed_link);
+                Log.i(TAG+"/detailed link", detailed_link);
 
                 // GET main article
                 org.jsoup.nodes.Document doc2 = Jsoup.connect(detailed_link).get();
                 String main_text = doc2.select("p.ynDetailText").first().text();
 
-                Log.i(TAG, main_text);
+                Log.i(TAG+"/main text", main_text);
 
                 // find location info
+                Matcher m = address_pattern.matcher(main_text);
+                if(m.find()){
+                    String matchStr = m.group();
+                    Log.i(TAG+"/Location", matchStr);
+                }
             }
 
         } catch (Exception e){
