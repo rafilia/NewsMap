@@ -114,7 +114,7 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                     LatLng location = new LatLng(address.getLatitude(), address.getLongitude());
 
                     // add marker on the map
-                    mMapsActivity.addMarker(location, entry.title);
+                    mMapsActivity.addMarker(location, entry.title, entry.url);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -19,6 +19,7 @@ public class MapsActivity extends FragmentActivity {
     private final static String TAG = "MapsActivity";
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    // initial location
     private final static LatLng INITIAL_LOCATION = new LatLng(38.564, 138.978);
     private final static float INITIAL_ZOOM_LEVEL = (float) 5.5;
 
@@ -84,6 +85,7 @@ public class MapsActivity extends FragmentActivity {
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 mMap.getUiSettings().setZoomControlsEnabled(true);
+                mMap.getUiSettings().setRotateGesturesEnabled(false);
                 setUpMap();
             }
         }
@@ -100,10 +102,11 @@ public class MapsActivity extends FragmentActivity {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
     }
 
-    public void addMarker(LatLng location,String _title){
+    public void addMarker(LatLng location,String _title, String _snippet){
         MarkerOptions mo = new MarkerOptions();
         mo.position(location);
         mo.title(_title);
+        mo.snippet(_snippet);
         mo.draggable(false);
         mMap.addMarker(mo);
     }
