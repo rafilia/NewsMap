@@ -12,15 +12,19 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+
 public class MapsActivity extends FragmentActivity {
     private final static String TAG = "MapsActivity";
 
+    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private final static LatLng INITIAL_LOCATION = new LatLng(38.564, 138.978);
     private final static float INITIAL_ZOOM_LEVEL = (float) 5.5;
 
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-
     private Button centerButton;
+
+    private final static String FeedURL = "http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml";
+    private ArrayList<NewsInfo> mNewsInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +41,9 @@ public class MapsActivity extends FragmentActivity {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
             }
         });
+
+        RSSLoader rssLoader = new RSSLoader(this, mNewsInfo);
+        rssLoader.execute(FeedURL);
     }
 
     @Override
