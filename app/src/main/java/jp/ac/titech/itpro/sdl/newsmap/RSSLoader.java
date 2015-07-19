@@ -1,9 +1,12 @@
 package jp.ac.titech.itpro.sdl.newsmap;
 
 import android.app.ProgressDialog;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
@@ -11,8 +14,11 @@ import com.sun.syndication.io.XmlReader;
 
 import org.jsoup.Jsoup;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,21 +80,46 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
 
                 // find location info
                 Matcher m = address_pattern.matcher(main_text);
+                String location = "";
                 if(m.find()){
-                    String matchStr = m.group();
-                    Log.i(TAG+"/Location", matchStr);
+                    location = m.group();
+                    Log.i(TAG+"/Location", location);
+                } else {
+                    Log.i(TAG+"/Location", "location cannot detect");
                 }
+
+                NewsInfo newsEntry = new NewsInfo(title, entry_url, location);
+                mNewsInfo.add(newsEntry);
             }
 
         } catch (Exception e){
             e.printStackTrace();
         }
 
-        return null;
+        return mNewsInfo;
     }
 
     @Override
     protected void onPostExecute(ArrayList<NewsInfo> newsinfo) {
         mProgressDialog.dismiss();
+
+        // put marker on the map
+        for(NewsInfo entry : newsinfo){
+            if(! "".equals(entry.location)){
+                Geocoder geocoder = new Geocoder(mMapsActivity, Locale.getDefault());
+                try {
+                    // get 1 result
+                    List<Address> addressList = geocoder.getFromLocationName(entry.location, 1);
+                    Address address = addressList.get(0);
+                    LatLng location = new LatLng(address.getLatitude(), address.getLongitude());
+
+                    // add marker on the map
+                    mMapsActivity.addMarker(location, entry.title);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
     }
 }

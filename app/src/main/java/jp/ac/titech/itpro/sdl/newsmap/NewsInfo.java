@@ -4,15 +4,13 @@ package jp.ac.titech.itpro.sdl.newsmap;
  * Created by tm on 2015/07/19.
  */
 public class NewsInfo {
-    private String title;
-    private String URL;
-    private boolean has_location;
-    private String Location;
+    String title;
+    String url;
+    String location;
 
-    public NewsInfo() {
-        title="";
-        URL="";
-        has_location=false;
-        Location="";
+    public NewsInfo(String _title, String _url, String _location) {
+        title = _title;
+        url = _url;
+        location = _location;
     }
 }

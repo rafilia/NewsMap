@@ -11,6 +11,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
@@ -42,6 +43,7 @@ public class MapsActivity extends FragmentActivity {
             }
         });
 
+        mNewsInfo = new ArrayList<NewsInfo>();
         RSSLoader rssLoader = new RSSLoader(this, mNewsInfo);
         rssLoader.execute(FeedURL);
     }
@@ -96,5 +98,13 @@ public class MapsActivity extends FragmentActivity {
     private void setUpMap() {
         //mMap.addMarker(new MarkerOptions().position(INITIAL_LOCATION).title("Marker"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+    }
+
+    public void addMarker(LatLng location,String _title){
+        MarkerOptions mo = new MarkerOptions();
+        mo.position(location);
+        mo.title(_title);
+        mo.draggable(false);
+        mMap.addMarker(mo);
     }
 }
