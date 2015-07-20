@@ -1,6 +1,7 @@
 package jp.ac.titech.itpro.sdl.newsmap;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
@@ -35,7 +36,7 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
     private int mFeedNumber;
     private ProgressDialog mProgressDialog;
 
-    private final int MAX_FEED_NUM = 50;
+    private final int MAX_FEED_NUM = 75;
 
     // for location search
     private final static String address_re = "((北海道|東京都|(京都|大阪)府|(鹿児島|神奈川|和歌山)県|.{2}県).{1,8}(村|町|市|区))";
@@ -55,6 +56,16 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
     protected void onPreExecute() {
         mProgressDialog = new ProgressDialog(mMapsActivity);
         mProgressDialog.setMessage("Now Loading...");
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Log.d(TAG+"/progressbar", "canceled");
+                        cancel(true);
+                        mProgressDialog.cancel();
+                    }
+                });
         mProgressDialog.show();
     }
 
@@ -65,11 +76,18 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
             Log.i(TAG+"/url", params[mFeedNumber]);
             URL feedurl = new URL(params[mFeedNumber]);
             SyndFeedInput input = new SyndFeedInput();
+            mProgressDialog.setProgress(5);
             SyndFeed feed = input.build(new XmlReader(feedurl));
+            mProgressDialog.setProgress(20);
 
             // Search Location
             int i=0;
             for(Object obj: feed.getEntries()){
+                if(isCancelled()) {
+                    return mNewsInfo;
+                }
+                mProgressDialog.setProgress(20+i);
+
                 // Get RSS entry info
                 SyndEntry entry = (SyndEntry) obj;
                 String entry_title = entry.getTitle();
@@ -138,9 +156,8 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
 
     @Override
     protected void onPostExecute(ArrayList<NewsInfo> newsinfo) {
-        mProgressDialog.dismiss();
-
         // put marker on the map
+        mProgressDialog.setProgress(90);
         for(NewsInfo entry : newsinfo){
             if(! "".equals(entry.location)){
                 Geocoder geocoder = new Geocoder(mMapsActivity, Locale.getDefault());
@@ -161,5 +178,12 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
 
             }
         }
+        mProgressDialog.dismiss();
+
+    }
+
+    @Override
+    protected void onCancelled() {
+        Log.d(TAG+"/onCancelled", "cancelled");
     }
 }
