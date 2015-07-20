@@ -31,7 +31,11 @@ public class MapsActivity extends FragmentActivity {
 
     private Button centerButton;
 
-    private final static String FeedURL = "http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml";
+    private final static String FeedURL[] = {"http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml",
+                                             "http://www3.nhk.or.jp/rss/news/cat1.xml"};
+    private final static int FEED_YAHOO = 0;
+    private final static int FEED_NHK = 1;
+
     private ArrayList<NewsInfo> mNewsInfo;
 
     @Override
@@ -52,7 +56,7 @@ public class MapsActivity extends FragmentActivity {
         });
 
         mNewsInfo = new ArrayList<NewsInfo>();
-        RSSLoader rssLoader = new RSSLoader(this, mNewsInfo);
+        RSSLoader rssLoader = new RSSLoader(this, mNewsInfo, FEED_NHK);
         rssLoader.execute(FeedURL);
     }
 

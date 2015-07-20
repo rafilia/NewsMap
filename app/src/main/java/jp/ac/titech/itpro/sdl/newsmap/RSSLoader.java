@@ -32,7 +32,10 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
     private final static String TAG = "RSSLoader";
     private MapsActivity mMapsActivity;
     private ArrayList<NewsInfo> mNewsInfo;
+    private int mFeedNumber;
     private ProgressDialog mProgressDialog;
+
+    private final int MAX_FEED_NUM = 50;
 
     // for location search
     private final static String address_re = "((北海道|東京都|(京都|大阪)府|(鹿児島|神奈川|和歌山)県|.{2}県).{1,8}(村|町|市|区))";
@@ -41,9 +44,10 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
     private final static String video_re = "videonews";
     private final static Pattern videonews_pattern = Pattern.compile(video_re);
 
-    public RSSLoader (MapsActivity activity, ArrayList<NewsInfo> newsinfo){
+    public RSSLoader (MapsActivity activity, ArrayList<NewsInfo> newsinfo, int feed_number){
         mMapsActivity = activity;
         mNewsInfo = newsinfo;
+        mFeedNumber = feed_number;
     }
 
     // show Progress Bar during execution
@@ -58,11 +62,13 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
     protected ArrayList<NewsInfo> doInBackground(String... params) {
         try{
             // Get RSS Feed
-            URL feedurl = new URL(params[0]);
+            Log.i(TAG+"/url", params[mFeedNumber]);
+            URL feedurl = new URL(params[mFeedNumber]);
             SyndFeedInput input = new SyndFeedInput();
             SyndFeed feed = input.build(new XmlReader(feedurl));
 
             // Search Location
+            int i=0;
             for(Object obj: feed.getEntries()){
                 // Get RSS entry info
                 SyndEntry entry = (SyndEntry) obj;
@@ -82,23 +88,29 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                 Log.i(TAG+"/title", entry_title);
                 Log.i(TAG+"/entry url", entry_url);
 
-                // GET 'Detailed Link'
-                org.jsoup.nodes.Document doc = Jsoup.connect(entry_url).get();
-                String detailed_link = doc.select("a.newsLink").first().attr("href");
-
-                Log.i(TAG+"/detailed link", detailed_link);
-
                 // GET main article
-                org.jsoup.nodes.Document doc2 = Jsoup.connect(detailed_link).get();
-                Matcher md = videonews_pattern.matcher(detailed_link);
+                String main_text="";
+                // yahoo
+                if(mFeedNumber == 0) {
+                    // GET 'Detailed Link'
+                    org.jsoup.nodes.Document doc = Jsoup.connect(entry_url).get();
+                    String detailed_link = doc.select("a.newsLink").first().attr("href");
 
-                String main_text;
-                if(md.find()) {
-                    // videonews
-                    main_text = doc2.select("div.yjMt").text();
-                } else {
-                    // textnews
-                    main_text = doc2.select("p.ynDetailText").first().text();
+                    Log.i(TAG + "/detailed link", detailed_link);
+
+                    org.jsoup.nodes.Document doc2 = Jsoup.connect(detailed_link).get();
+                    Matcher md = videonews_pattern.matcher(detailed_link);
+
+                    if (md.find()) {
+                        // videonews
+                        main_text = doc2.select("div.yjMt").text();
+                    } else {
+                        // textnews
+                        main_text = doc2.select("p.ynDetailText").first().text();
+                    }
+                // nhk
+                } else if (mFeedNumber == 1){
+                    main_text = entry.getDescription().getValue();
                 }
                 Log.i(TAG+"/main text", main_text);
 
@@ -114,8 +126,9 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
 
                 NewsInfo newsEntry = new NewsInfo(entry_title, entry_url, location, entry_date);
                 mNewsInfo.add(newsEntry);
-            }
 
+                if(i++ == MAX_FEED_NUM) break;
+            }
         } catch (Exception e){
             e.printStackTrace();
         }
