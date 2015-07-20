@@ -16,7 +16,10 @@ import org.jsoup.Jsoup;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -66,6 +69,16 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                 String entry_title = entry.getTitle();
                 String entry_url = entry.getLink();
 
+                // GET date info
+                Date entry_date = null;
+                SimpleDateFormat df = new SimpleDateFormat("EEE MMM dd kk:mm:ss 'JST' yyyy", Locale.ENGLISH);
+                try {
+                    entry_date = df.parse(String.valueOf(entry.getPublishedDate()));
+                    Log.i(TAG + "/date", String.valueOf(entry_date));
+                } catch (ParseException pe) {
+                    pe.printStackTrace();
+                }
+
                 Log.i(TAG+"/title", entry_title);
                 Log.i(TAG+"/entry url", entry_url);
 
@@ -99,7 +112,7 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                     Log.i(TAG+"/Location", "location cannot detect");
                 }
 
-                NewsInfo newsEntry = new NewsInfo(entry_title, entry_url, location);
+                NewsInfo newsEntry = new NewsInfo(entry_title, entry_url, location, entry_date);
                 mNewsInfo.add(newsEntry);
             }
 
@@ -125,7 +138,7 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                         Address address = addressList.get(0);
                         LatLng latlng = new LatLng(address.getLatitude(), address.getLongitude());
                         // add marker on the map
-                        mMapsActivity.addMarker(latlng, entry.title, /*entry.url*/ entry.location);
+                        mMapsActivity.addMarker(latlng, entry);
                     } else {
                         Log.i(TAG+"/onPostEx", "cannot search Location :" + entry.location);
                     }

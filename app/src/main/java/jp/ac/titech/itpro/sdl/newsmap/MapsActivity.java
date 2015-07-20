@@ -11,11 +11,15 @@ import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+
+import static java.lang.System.currentTimeMillis;
 
 public class MapsActivity extends FragmentActivity {
     private final static String TAG = "MapsActivity";
@@ -133,12 +137,26 @@ public class MapsActivity extends FragmentActivity {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
     }
 
-    public void addMarker(LatLng _latlng, String _title, String _snippet){
+    public void addMarker(LatLng _latlng, NewsInfo entry){
         MarkerOptions mo = new MarkerOptions();
         mo.position(_latlng);
-        mo.title(_title);
-        mo.snippet(_snippet);
+        mo.title(entry.title);
+        mo.snippet(entry.location);
         mo.draggable(false);
+
+        // icon color
+        long current = currentTimeMillis();
+        long x = current - (entry.issue_date!=null? entry.issue_date.getTime() :0);
+        BitmapDescriptor icon;
+        if(x < 1000*3600*24) {
+            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+        } else if(x < 1000*3600*24*2){
+            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
+        } else {
+            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+        }
+        mo.icon(icon);
+
         mMap.addMarker(mo);
     }
 }
