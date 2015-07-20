@@ -63,10 +63,10 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
             for(Object obj: feed.getEntries()){
                 // Get RSS entry info
                 SyndEntry entry = (SyndEntry) obj;
-                String title = entry.getTitle();
+                String entry_title = entry.getTitle();
                 String entry_url = entry.getLink();
 
-                Log.i(TAG+"/title", title);
+                Log.i(TAG+"/title", entry_title);
                 Log.i(TAG+"/entry url", entry_url);
 
                 // GET 'Detailed Link'
@@ -99,7 +99,7 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                     Log.i(TAG+"/Location", "location cannot detect");
                 }
 
-                NewsInfo newsEntry = new NewsInfo(title, entry_url, location);
+                NewsInfo newsEntry = new NewsInfo(entry_title, entry_url, location);
                 mNewsInfo.add(newsEntry);
             }
 
@@ -121,11 +121,14 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                 try {
                     // get 1 result
                     List<Address> addressList = geocoder.getFromLocationName(entry.location, 1);
-                    Address address = addressList.get(0);
-                    LatLng location = new LatLng(address.getLatitude(), address.getLongitude());
-
-                    // add marker on the map
-                    mMapsActivity.addMarker(location, entry.title, entry.url);
+                    if(!addressList.isEmpty()) {
+                        Address address = addressList.get(0);
+                        LatLng latlng = new LatLng(address.getLatitude(), address.getLongitude());
+                        // add marker on the map
+                        mMapsActivity.addMarker(latlng, entry.title, /*entry.url*/ entry.location);
+                    } else {
+                        Log.i(TAG+"/onPostEx", "cannot search Location :" + entry.location);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

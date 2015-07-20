@@ -98,16 +98,21 @@ public class MapsActivity extends FragmentActivity {
                 });
                 mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                     @Override
-                    public View getInfoWindow(Marker marker) {
-                        View view = getLayoutInflater().inflate(R.layout.info_window, null);
+                    //public View getInfoWindow(Marker marker) {
+                    public View getInfoContents(Marker marker) {
+                            View view = getLayoutInflater().inflate(R.layout.info_window, null);
                         TextView title = (TextView) view.findViewById(R.id.info_title);
+                        TextView location = (TextView) view.findViewById(R.id.info_location);
+
                         title.setText(marker.getTitle());
+                        location.setText(marker.getSnippet());
 
                         return view;
                     }
 
                     @Override
-                    public View getInfoContents(Marker marker) {
+                    public View getInfoWindow(Marker marker) {
+                    //public View getInfoContents(Marker marker) {
                         return null;
                     }
                 });
@@ -128,9 +133,9 @@ public class MapsActivity extends FragmentActivity {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
     }
 
-    public void addMarker(LatLng location,String _title, String _snippet){
+    public void addMarker(LatLng _latlng, String _title, String _snippet){
         MarkerOptions mo = new MarkerOptions();
-        mo.position(location);
+        mo.position(_latlng);
         mo.title(_title);
         mo.snippet(_snippet);
         mo.draggable(false);
