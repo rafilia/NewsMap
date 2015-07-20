@@ -35,6 +35,9 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
     private final static String address_re = "((北海道|東京都|(京都|大阪)府|(鹿児島|神奈川|和歌山)県|.{2}県).{1,8}(村|町|市|区))";
     private final static Pattern address_pattern = Pattern.compile(address_re);
 
+    private final static String video_re = "videonews";
+    private final static Pattern videonews_pattern = Pattern.compile(video_re);
+
     public RSSLoader (MapsActivity activity, ArrayList<NewsInfo> newsinfo){
         mMapsActivity = activity;
         mNewsInfo = newsinfo;
@@ -74,8 +77,16 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
 
                 // GET main article
                 org.jsoup.nodes.Document doc2 = Jsoup.connect(detailed_link).get();
-                String main_text = doc2.select("p.ynDetailText").first().text();
+                Matcher md = videonews_pattern.matcher(detailed_link);
 
+                String main_text;
+                if(md.find()) {
+                    // videonews
+                    main_text = doc2.select("div.yjMt").text();
+                } else {
+                    // textnews
+                    main_text = doc2.select("p.ynDetailText").first().text();
+                }
                 Log.i(TAG+"/main text", main_text);
 
                 // find location info
