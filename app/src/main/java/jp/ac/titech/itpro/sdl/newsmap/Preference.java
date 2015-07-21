@@ -29,18 +29,17 @@ public class Preference extends Activity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.layout.preference);
 
-            // set initial value
+            // set summary
             ListPreference RSSFeedList = (ListPreference) findPreference ("prefRSSFeed");
-            //RSSFeedList.setValueIndex(0);
-            RSSFeedList.setSummary(getResources().getStringArray(R.array.RSS_feeds)[0]);
+            RSSFeedList.setSummary(getResources().getStringArray(R.array.RSS_feeds)[Integer.parseInt(RSSFeedList.getValue())]);
 
             ListPreference LoadMaxValue = (ListPreference) findPreference("prefMaxLoadNum");
-            //LoadMaxValue.setValueIndex(2);
-            LoadMaxValue.setSummary(getResources().getStringArray(R.array.Max_load_num)[2]);
+            LoadMaxValue.setSummary(LoadMaxValue.getValue());
         }
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+            // change summary
             if(s.equals("prefRSSFeed")) {
                 ListPreference RSSFeedList = (ListPreference) findPreference ("prefRSSFeed");
                 RSSFeedList.setSummary(getResources().getStringArray(R.array.RSS_feeds)[Integer.parseInt(RSSFeedList.getValue())]);
@@ -51,6 +50,7 @@ public class Preference extends Activity {
                 Log.i(TAG + "/changed", "set load max value summary");
             }
 
+            // to be reloaded RSS after return to main activity
             sharedPreferences.edit().putBoolean("needRefresh", true).commit();
         }
 

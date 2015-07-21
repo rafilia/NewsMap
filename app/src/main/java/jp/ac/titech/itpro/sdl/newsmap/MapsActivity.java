@@ -71,6 +71,13 @@ public class MapsActivity extends FragmentActivity {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
 
         mNewsInfo = new ArrayList<NewsInfo>();
+
+        loadRSS();
+
+    }
+
+    private void loadRSS() {
+        mMap.clear();
         RSSLoader rssLoader = new RSSLoader(this, mNewsInfo);
         rssLoader.execute(FeedURL);
     }
@@ -180,6 +187,7 @@ public class MapsActivity extends FragmentActivity {
             Log.i(TAG, "return from Preferences");
             if(sp.getBoolean("needRefresh", false)){
                 Log.i(TAG, "to be refreshed");
+                loadRSS();
                 sp.edit().putBoolean("needRefresh", false).commit();
             }
         }
