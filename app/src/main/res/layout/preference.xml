@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content">
+
+    <ListPreference
+        android:key="prefRSSFeed"
+        android:title="ListPreference"
+        android:summary="ListPreference"
+        android:entries="@array/RSS_feeds"
+        android:entryValues="@array/RSS_feeds_value"
+        android:dialogTitle="ListPreference" />
+
+    <EditTextPreference
+        android:key="prefMaxLoadNum"
+        android:title="Max Load Number"
+        android:summary="Edit Max Load Number"
+        android:dialogTitle="EditTextPreference" />
+
+</PreferenceScreen>

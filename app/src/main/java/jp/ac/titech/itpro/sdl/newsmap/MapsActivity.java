@@ -1,6 +1,9 @@
 package jp.ac.titech.itpro.sdl.newsmap;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -56,6 +59,8 @@ public class MapsActivity extends FragmentActivity {
                 // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
             }
         });
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mNewsInfo = new ArrayList<NewsInfo>();
         feed_number = FEED_NHK;
@@ -151,6 +156,8 @@ public class MapsActivity extends FragmentActivity {
         switch (item.getItemId()) {
             case R.id.menu_settings:
                 Log.d("menu/settings", "setting");
+                Intent intent = new Intent(getApplicationContext(), Preference.class);
+                startActivity(intent);
                 break;
             default:
                 //return super.onOptionsItemSelected(item);

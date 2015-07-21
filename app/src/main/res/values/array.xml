@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="RSS_feeds">
+        <item>"NHK"</item>
+        <item>"yahoo"</item>
+    </array>
+    <array name="RSS_feeds_value">
+        <item>0</item>
+        <item>1</item>
+    </array>
+</resources>
