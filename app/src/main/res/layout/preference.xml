@@ -5,17 +5,17 @@
     android:layout_width="wrap_content">
 
     <ListPreference
-        android:key="prefRSSFeed"
-        android:title="ListPreference"
-        android:summary="ListPreference"
+        android:key="@string/prefRSSFeed"
+        android:title="RSS Feed"
+        android:summary="---"
         android:entries="@array/RSS_feeds"
         android:entryValues="@array/RSS_feeds_value"
-        android:dialogTitle="ListPreference" />
+        android:dialogTitle="Choose RSS Feed" />
 
     <EditTextPreference
-        android:key="prefMaxLoadNum"
+        android:key="@string/prefMaxLoadNum"
         android:title="Max Load Number"
         android:summary="Edit Max Load Number"
-        android:dialogTitle="EditTextPreference" />
+        android:dialogTitle="Enter Max Load Number (1-100)" />
 
 </PreferenceScreen>

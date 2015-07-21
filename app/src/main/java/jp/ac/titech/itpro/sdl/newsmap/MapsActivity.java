@@ -31,7 +31,7 @@ public class MapsActivity extends FragmentActivity {
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     // initial location
     private final static LatLng INITIAL_LOCATION = new LatLng(38.564, 138.978);
-    private final static float INITIAL_ZOOM_LEVEL = (float) 5.5;
+    private final static float INITIAL_ZOOM_LEVEL = (float) 5;
 
     private Button centerButton;
 
@@ -42,6 +42,8 @@ public class MapsActivity extends FragmentActivity {
     private int feed_number;
 
     private ArrayList<NewsInfo> mNewsInfo;
+
+    private SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +62,7 @@ public class MapsActivity extends FragmentActivity {
             }
         });
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
 
         mNewsInfo = new ArrayList<NewsInfo>();
         feed_number = FEED_NHK;
