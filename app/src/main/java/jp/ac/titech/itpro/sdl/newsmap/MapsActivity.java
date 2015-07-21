@@ -52,6 +52,8 @@ public class MapsActivity extends FragmentActivity {
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
 
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
+
         centerButton = (Button) findViewById(R.id.centerButton);
         centerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,12 +67,9 @@ public class MapsActivity extends FragmentActivity {
             @Override
             public void onClick(View view) {
                 // reload map
+                loadRSS();
             }
         });
-
-        sp = PreferenceManager.getDefaultSharedPreferences(this);
-
-        mNewsInfo = new ArrayList<NewsInfo>();
 
         loadRSS();
 
@@ -78,7 +77,7 @@ public class MapsActivity extends FragmentActivity {
 
     private void loadRSS() {
         mMap.clear();
-        RSSLoader rssLoader = new RSSLoader(this, mNewsInfo);
+        RSSLoader rssLoader = new RSSLoader(this);
         rssLoader.execute(FeedURL);
     }
 

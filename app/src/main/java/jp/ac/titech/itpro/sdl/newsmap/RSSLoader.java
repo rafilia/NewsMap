@@ -17,7 +17,6 @@ import com.sun.syndication.io.XmlReader;
 
 import org.jsoup.Jsoup;
 
-import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,7 +30,7 @@ import java.util.regex.Pattern;
 /**
  * Created by tm on 2015/07/19.
  */
-public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
+public class RSSLoader extends AsyncTask<String, Integer, Void> {
     private final static String TAG = "RSSLoader";
     private MapsActivity mMapsActivity;
     private ArrayList<NewsInfo> mNewsInfo;
@@ -48,11 +47,11 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
     private final static String video_re = "videonews";
     private final static Pattern videonews_pattern = Pattern.compile(video_re);
 
-    public RSSLoader (MapsActivity activity, ArrayList<NewsInfo> newsinfo){
+    public RSSLoader (MapsActivity activity){
         sp = PreferenceManager.getDefaultSharedPreferences(activity);
 
         mMapsActivity = activity;
-        mNewsInfo = newsinfo;
+        mNewsInfo = new ArrayList<NewsInfo>();
         mFeedNumber = Integer.parseInt(sp.getString("prefRSSFeed", "0"));
         mLoadNumber = Integer.parseInt(sp.getString("prefMaxLoadNum", "75"));
 
@@ -70,32 +69,41 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Log.d(TAG+"/progressbar", "canceled");
+                        Log.d(TAG + "/progressbar", "canceled");
                         cancel(true);
                         mProgressDialog.cancel();
                     }
                 });
+        // mProgressDialog.setCancelable(false);
+        // if back button clicked ...
+        mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                cancel(true);
+                mProgressDialog.cancel();
+            }
+        });
         mProgressDialog.show();
     }
 
     @Override
-    protected ArrayList<NewsInfo> doInBackground(String... params) {
+    protected Void doInBackground(String... params) {
         try{
             // Get RSS Feed
             Log.i(TAG + "/url", params[mFeedNumber]);
             URL feedurl = new URL(params[mFeedNumber]);
             SyndFeedInput input = new SyndFeedInput();
-            mProgressDialog.setProgress(5);
             SyndFeed feed = input.build(new XmlReader(feedurl));
             mProgressDialog.setProgress(20);
 
             // Search Location
             int i=0;
+            Geocoder geocoder = new Geocoder(mMapsActivity, Locale.getDefault());
             for(Object obj: feed.getEntries()){
                 if(isCancelled()) {
-                    return mNewsInfo;
+                    return null;
                 }
-                mProgressDialog.setProgress(20+i);
+                mProgressDialog.setProgress(i+20);
 
                 // Get RSS entry info
                 SyndEntry entry = (SyndEntry) obj;
@@ -143,15 +151,24 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
 
                 // find location info
                 Matcher m = address_pattern.matcher(main_text);
-                String location = "";
+                String entry_location = "";
+                LatLng entry_latlng = null;
                 if(m.find()){
-                    location = m.group();
-                    Log.i(TAG+"/Location", location);
+                    entry_location = m.group();
+                    Log.i(TAG+"/Location", entry_location);
+
+                    List<Address> addressList = geocoder.getFromLocationName(entry_location, 1);
+                    if(!addressList.isEmpty()) {
+                        Address address = addressList.get(0);
+                        entry_latlng = new LatLng(address.getLatitude(), address.getLongitude());
+                    } else {
+                        Log.i(TAG+"/onPostEx", "cannot search Location :" + entry_location);
+                    }
                 } else {
                     Log.i(TAG+"/Location", "location cannot detect");
                 }
 
-                NewsInfo newsEntry = new NewsInfo(entry_title, entry_url, location, entry_date);
+                NewsInfo newsEntry = new NewsInfo(entry_title, entry_url, entry_location, entry_date, entry_latlng);
                 mNewsInfo.add(newsEntry);
 
                 if(i++ == mLoadNumber) break;
@@ -160,35 +177,19 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
             e.printStackTrace();
         }
 
-        return mNewsInfo;
+        return null;
     }
 
     @Override
-    protected void onPostExecute(ArrayList<NewsInfo> newsinfo) {
+    protected void onPostExecute(Void result) {
         // put marker on the map
-        mProgressDialog.setProgress(90);
-        for(NewsInfo entry : newsinfo){
-            if(! "".equals(entry.location)){
-                Geocoder geocoder = new Geocoder(mMapsActivity, Locale.getDefault());
-                try {
-                    // get 1 result
-                    List<Address> addressList = geocoder.getFromLocationName(entry.location, 1);
-                    if(!addressList.isEmpty()) {
-                        Address address = addressList.get(0);
-                        LatLng latlng = new LatLng(address.getLatitude(), address.getLongitude());
-                        // add marker on the map
-                        mMapsActivity.addMarker(latlng, entry);
-                    } else {
-                        Log.i(TAG+"/onPostEx", "cannot search Location :" + entry.location);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+        mProgressDialog.setProgress(98);
+        for(NewsInfo entry : mNewsInfo){
+            if(entry.latlng != null){
+                mMapsActivity.addMarker(entry.latlng, entry);
             }
         }
         mProgressDialog.dismiss();
-
     }
 
     @Override
