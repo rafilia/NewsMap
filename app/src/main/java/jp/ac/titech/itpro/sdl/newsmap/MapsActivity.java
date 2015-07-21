@@ -71,9 +71,7 @@ public class MapsActivity extends FragmentActivity {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
 
         mNewsInfo = new ArrayList<NewsInfo>();
-        feed_number = Integer.parseInt(sp.getString("prefRSSFeed", "0"));
-        Log.d(TAG+"/feed_num", String.valueOf(feed_number));
-        RSSLoader rssLoader = new RSSLoader(this, mNewsInfo, feed_number);
+        RSSLoader rssLoader = new RSSLoader(this, mNewsInfo);
         rssLoader.execute(FeedURL);
     }
 
@@ -166,7 +164,7 @@ public class MapsActivity extends FragmentActivity {
             case R.id.menu_settings:
                 Log.d("menu/settings", "setting");
                 Intent intent = new Intent(getApplicationContext(), Preference.class);
-                startActivity(intent);
+                startActivityForResult(intent, Consts.FROM_PREF);
                 break;
             default:
                 //return super.onOptionsItemSelected(item);
@@ -174,6 +172,17 @@ public class MapsActivity extends FragmentActivity {
         }
 
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Consts.FROM_PREF) {
+            Log.i(TAG, "return from Preferences");
+            if(sp.getBoolean("needRefresh", false)){
+                Log.i(TAG, "to be refreshed");
+                sp.edit().putBoolean("needRefresh", false).commit();
+            }
+        }
     }
 
     public void addMarker(LatLng _latlng, NewsInfo entry){

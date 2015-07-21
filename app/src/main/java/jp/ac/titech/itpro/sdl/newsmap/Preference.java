@@ -31,14 +31,12 @@ public class Preference extends Activity {
 
             // set initial value
             ListPreference RSSFeedList = (ListPreference) findPreference ("prefRSSFeed");
-            RSSFeedList.setValueIndex(0);
+            //RSSFeedList.setValueIndex(0);
             RSSFeedList.setSummary(getResources().getStringArray(R.array.RSS_feeds)[0]);
 
             ListPreference LoadMaxValue = (ListPreference) findPreference("prefMaxLoadNum");
-            LoadMaxValue.setValueIndex(2);
+            //LoadMaxValue.setValueIndex(2);
             LoadMaxValue.setSummary(getResources().getStringArray(R.array.Max_load_num)[2]);
-
-            getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
         }
 
         @Override
@@ -52,6 +50,20 @@ public class Preference extends Activity {
                 LoadMaxValue.setSummary(LoadMaxValue.getValue());
                 Log.i(TAG + "/changed", "set load max value summary");
             }
+
+            sharedPreferences.edit().putBoolean("needRefresh", true).commit();
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
         }
     }
 }

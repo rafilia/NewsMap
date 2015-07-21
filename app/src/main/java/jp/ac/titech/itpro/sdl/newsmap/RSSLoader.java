@@ -2,9 +2,11 @@ package jp.ac.titech.itpro.sdl.newsmap;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -34,9 +36,10 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
     private MapsActivity mMapsActivity;
     private ArrayList<NewsInfo> mNewsInfo;
     private int mFeedNumber;
+    private int mLoadNumber;
     private ProgressDialog mProgressDialog;
 
-    private final int MAX_FEED_NUM = 75;
+    private SharedPreferences sp;
 
     // for location search
     private final static String address_re = "((北海道|東京都|(京都|大阪)府|(鹿児島|神奈川|和歌山)県|.{2}県).{1,8}(村|町|市|区))";
@@ -45,10 +48,16 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
     private final static String video_re = "videonews";
     private final static Pattern videonews_pattern = Pattern.compile(video_re);
 
-    public RSSLoader (MapsActivity activity, ArrayList<NewsInfo> newsinfo, int feed_number){
+    public RSSLoader (MapsActivity activity, ArrayList<NewsInfo> newsinfo){
+        sp = PreferenceManager.getDefaultSharedPreferences(activity);
+
         mMapsActivity = activity;
         mNewsInfo = newsinfo;
-        mFeedNumber = feed_number;
+        mFeedNumber = Integer.parseInt(sp.getString("prefRSSFeed", "0"));
+        mLoadNumber = Integer.parseInt(sp.getString("prefMaxLoadNum", "75"));
+
+        Log.i(TAG+"/onCreate", "feed number :" + sp.getString("prefRSSFeed", "0"));
+        Log.i(TAG+"/onCreate", "max load number :" + sp.getString("prefMaxLoadNum", "75"));
     }
 
     // show Progress Bar during execution
@@ -73,7 +82,7 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
     protected ArrayList<NewsInfo> doInBackground(String... params) {
         try{
             // Get RSS Feed
-            Log.i(TAG+"/url", params[mFeedNumber]);
+            Log.i(TAG + "/url", params[mFeedNumber]);
             URL feedurl = new URL(params[mFeedNumber]);
             SyndFeedInput input = new SyndFeedInput();
             mProgressDialog.setProgress(5);
@@ -145,7 +154,7 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                 NewsInfo newsEntry = new NewsInfo(entry_title, entry_url, location, entry_date);
                 mNewsInfo.add(newsEntry);
 
-                if(i++ == MAX_FEED_NUM) break;
+                if(i++ == mLoadNumber) break;
             }
         } catch (Exception e){
             e.printStackTrace();

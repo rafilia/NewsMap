@@ -6,6 +6,7 @@
 
     <ListPreference
         android:key="@string/prefRSSFeed"
+        android:defaultValue="0"
         android:title="RSS Feed"
         android:summary="Choose RSS Feed"
         android:entries="@array/RSS_feeds"
@@ -14,6 +15,7 @@
 
     <ListPreference
         android:key="@string/prefMaxLoadNum"
+        android:defaultValue="75"
         android:title="Max Load Number"
         android:summary="Choose Max Load Number"
         android:entries="@array/Max_load_num"
