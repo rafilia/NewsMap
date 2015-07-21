@@ -38,8 +38,6 @@ public class MapsActivity extends FragmentActivity {
     private final static String FeedURL[] = {"http://www3.nhk.or.jp/rss/news/cat1.xml",
                                              "http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml"};
 
-    private int feed_number;
-
     private ArrayList<NewsInfo> mNewsInfo;
 
     private SharedPreferences sp;
@@ -58,7 +56,7 @@ public class MapsActivity extends FragmentActivity {
         centerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setUpMap();
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
             }
         });
 
@@ -66,13 +64,42 @@ public class MapsActivity extends FragmentActivity {
         reloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // reload map
+                // force reload map
+                mNewsInfo =  new ArrayList<>();
                 loadRSS();
             }
         });
 
-        loadRSS();
+        if(mNewsInfo == null){
+            mNewsInfo = new ArrayList<>();
+        }
+    }
 
+    @Override
+    protected void onStart() {
+        Log.i(TAG, "onStart");
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpMapIfNeeded();
+        loadRSS();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.i(TAG, "onSavedInstanceState");
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("NewsInfo", mNewsInfo);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.i(TAG, "onRestoreInstanceState");
+        super.onRestoreInstanceState(savedInstanceState);
+        mNewsInfo = savedInstanceState.getParcelableArrayList("NewsInfo");
     }
 
     private void loadRSS() {
@@ -81,10 +108,12 @@ public class MapsActivity extends FragmentActivity {
         rssLoader.execute(FeedURL);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setUpMapIfNeeded();
+    public ArrayList<NewsInfo> getNewsInfo(){
+        return mNewsInfo;
+    }
+
+    public void setNewsInfo(ArrayList<NewsInfo> newsinfo){
+        mNewsInfo = newsinfo;
     }
 
     /**
@@ -152,8 +181,7 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
     }
 
 
@@ -186,6 +214,8 @@ public class MapsActivity extends FragmentActivity {
             Log.i(TAG, "return from Preferences");
             if(sp.getBoolean("needRefresh", false)){
                 Log.i(TAG, "to be refreshed");
+                // delete current news info
+                mNewsInfo = new ArrayList<>();
                 loadRSS();
                 sp.edit().putBoolean("needRefresh", false).commit();
             }
@@ -214,4 +244,5 @@ public class MapsActivity extends FragmentActivity {
 
         mMap.addMarker(mo);
     }
+
 }

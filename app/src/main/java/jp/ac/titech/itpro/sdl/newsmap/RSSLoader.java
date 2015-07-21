@@ -51,7 +51,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
         sp = PreferenceManager.getDefaultSharedPreferences(activity);
 
         mMapsActivity = activity;
-        mNewsInfo = new ArrayList<NewsInfo>();
+        mNewsInfo = mMapsActivity.getNewsInfo();
         mFeedNumber = Integer.parseInt(sp.getString("prefRSSFeed", "0"));
         mLoadNumber = Integer.parseInt(sp.getString("prefMaxLoadNum", "75"));
 
@@ -74,21 +74,25 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                         mProgressDialog.cancel();
                     }
                 });
-        // mProgressDialog.setCancelable(false);
-        // if back button clicked ...
-        mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                cancel(true);
-                mProgressDialog.cancel();
-            }
-        });
+         mProgressDialog.setCancelable(false);
+//        // if back button clicked ...
+//        mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+//            @Override
+//            public void onCancel(DialogInterface dialogInterface) {
+//                cancel(true);
+//                mProgressDialog.cancel();
+//            }
+//        });
         mProgressDialog.show();
     }
 
     @Override
     protected Void doInBackground(String... params) {
-        try{
+        if(!mNewsInfo.isEmpty()) {
+            return null;
+        }
+
+        try {
             // Get RSS Feed
             Log.i(TAG + "/url", params[mFeedNumber]);
             URL feedurl = new URL(params[mFeedNumber]);
@@ -97,13 +101,13 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
             mProgressDialog.setProgress(20);
 
             // Search Location
-            int i=0;
+            int i = 0;
             Geocoder geocoder = new Geocoder(mMapsActivity, Locale.getDefault());
-            for(Object obj: feed.getEntries()){
-                if(isCancelled()) {
+            for (Object obj : feed.getEntries()) {
+                if (isCancelled()) {
                     return null;
                 }
-                mProgressDialog.setProgress(i+20);
+                mProgressDialog.setProgress(i + 20);
 
                 // Get RSS entry info
                 SyndEntry entry = (SyndEntry) obj;
@@ -120,13 +124,13 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                     pe.printStackTrace();
                 }
 
-                Log.i(TAG+"/title", entry_title);
-                Log.i(TAG+"/entry url", entry_url);
+                Log.i(TAG + "/title", entry_title);
+                Log.i(TAG + "/entry url", entry_url);
 
                 // GET main article
-                String main_text="";
+                String main_text = "";
                 // yahoo
-                if(mFeedNumber == Consts.FEED_YAHOO ) {
+                if (mFeedNumber == Consts.FEED_YAHOO) {
                     // GET 'Detailed Link'
                     org.jsoup.nodes.Document doc = Jsoup.connect(entry_url).get();
                     String detailed_link = doc.select("a.newsLink").first().attr("href");
@@ -143,47 +147,48 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                         // textnews
                         main_text = doc2.select("p.ynDetailText").first().text();
                     }
-                // nhk
-                } else if (mFeedNumber == Consts.FEED_NHK){
+                    // nhk
+                } else if (mFeedNumber == Consts.FEED_NHK) {
                     main_text = entry.getDescription().getValue();
                 }
-                Log.i(TAG+"/main text", main_text);
+                Log.i(TAG + "/main text", main_text);
 
                 // find location info
                 Matcher m = address_pattern.matcher(main_text);
                 String entry_location = "";
                 LatLng entry_latlng = null;
-                if(m.find()){
+                if (m.find()) {
                     entry_location = m.group();
-                    Log.i(TAG+"/Location", entry_location);
+                    Log.i(TAG + "/Location", entry_location);
 
                     List<Address> addressList = geocoder.getFromLocationName(entry_location, 1);
-                    if(!addressList.isEmpty()) {
+                    if (!addressList.isEmpty()) {
                         Address address = addressList.get(0);
                         entry_latlng = new LatLng(address.getLatitude(), address.getLongitude());
                     } else {
-                        Log.i(TAG+"/onPostEx", "cannot search Location :" + entry_location);
+                        Log.i(TAG + "/onPostEx", "cannot search Location :" + entry_location);
                     }
                 } else {
-                    Log.i(TAG+"/Location", "location cannot detect");
+                    Log.i(TAG + "/Location", "location cannot detect");
                 }
 
                 NewsInfo newsEntry = new NewsInfo(entry_title, entry_url, entry_location, entry_date, entry_latlng);
                 mNewsInfo.add(newsEntry);
 
-                if(i++ == mLoadNumber) break;
+                if (i++ == mLoadNumber) break;
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
+        mMapsActivity.setNewsInfo(mNewsInfo);
         return null;
     }
 
     @Override
     protected void onPostExecute(Void result) {
-        // put marker on the map
         mProgressDialog.setProgress(98);
+        // put markers on the map
         for(NewsInfo entry : mNewsInfo){
             if(entry.latlng != null){
                 mMapsActivity.addMarker(entry.latlng, entry);
@@ -195,5 +200,6 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
     @Override
     protected void onCancelled() {
         Log.d(TAG+"/onCancelled", "cancelled");
+        sp.edit().putBoolean("needRefresh", true).commit();
     }
 }
