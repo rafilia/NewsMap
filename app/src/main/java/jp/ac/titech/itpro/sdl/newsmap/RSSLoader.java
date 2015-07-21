@@ -109,7 +109,7 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                 // GET main article
                 String main_text="";
                 // yahoo
-                if(mFeedNumber == 0) {
+                if(mFeedNumber == Consts.FEED_YAHOO ) {
                     // GET 'Detailed Link'
                     org.jsoup.nodes.Document doc = Jsoup.connect(entry_url).get();
                     String detailed_link = doc.select("a.newsLink").first().attr("href");
@@ -127,7 +127,7 @@ public class RSSLoader extends AsyncTask<String, Integer, ArrayList<NewsInfo>> {
                         main_text = doc2.select("p.ynDetailText").first().text();
                     }
                 // nhk
-                } else if (mFeedNumber == 1){
+                } else if (mFeedNumber == Consts.FEED_NHK){
                     main_text = entry.getDescription().getValue();
                 }
                 Log.i(TAG+"/main text", main_text);

@@ -35,10 +35,9 @@ public class MapsActivity extends FragmentActivity {
 
     private Button centerButton, reloadButton;
 
-    private final static String FeedURL[] = {"http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml",
-                                             "http://www3.nhk.or.jp/rss/news/cat1.xml"};
-    private final static int FEED_YAHOO = 0;
-    private final static int FEED_NHK = 1;
+    private final static String FeedURL[] = {"http://www3.nhk.or.jp/rss/news/cat1.xml",
+                                             "http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml"};
+
     private int feed_number;
 
     private ArrayList<NewsInfo> mNewsInfo;
@@ -72,7 +71,8 @@ public class MapsActivity extends FragmentActivity {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
 
         mNewsInfo = new ArrayList<NewsInfo>();
-        feed_number = FEED_NHK;
+        feed_number = Integer.parseInt(sp.getString("prefRSSFeed", "0"));
+        Log.d(TAG+"/feed_num", String.valueOf(feed_number));
         RSSLoader rssLoader = new RSSLoader(this, mNewsInfo, feed_number);
         rssLoader.execute(FeedURL);
     }
