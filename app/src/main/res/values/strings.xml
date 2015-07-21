@@ -7,4 +7,5 @@
     <string name="prefMaxLoadNum">prefMaxLoadNum</string>
 
     <string name="center_button">Center</string>
+    <string name="reload_button">Reload</string>
 </resources>

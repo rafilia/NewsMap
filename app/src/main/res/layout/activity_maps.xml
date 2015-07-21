@@ -7,12 +7,23 @@
         android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapsActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         />
+
     <Button
         android:id="@+id/centerButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
-        android:text="@string/center_button" />
+        android:text="@string/center_button"
+        android:layout_gravity="center_horizontal"/>
+        />
+    <Button
+        android:id="@+id/reloadButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reload_button"
+        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/centerButton" />
 
 </RelativeLayout>

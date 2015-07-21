@@ -33,7 +33,7 @@ public class MapsActivity extends FragmentActivity {
     private final static LatLng INITIAL_LOCATION = new LatLng(38.564, 138.978);
     private final static float INITIAL_ZOOM_LEVEL = (float) 5;
 
-    private Button centerButton;
+    private Button centerButton, reloadButton;
 
     private final static String FeedURL[] = {"http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml",
                                              "http://www3.nhk.or.jp/rss/news/cat1.xml"};
@@ -58,7 +58,14 @@ public class MapsActivity extends FragmentActivity {
             @Override
             public void onClick(View view) {
                 setUpMap();
-                // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+            }
+        });
+
+        reloadButton = (Button) findViewById(R.id.reloadButton);
+        reloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // reload map
             }
         });
 
@@ -141,8 +148,8 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        //mMap.addMarker(new MarkerOptions().position(INITIAL_LOCATION).title("Marker"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
     }
 
 
