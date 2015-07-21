@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ public class MapsActivity extends FragmentActivity {
                                              "http://www3.nhk.or.jp/rss/news/cat1.xml"};
     private final static int FEED_YAHOO = 0;
     private final static int FEED_NHK = 1;
+    private int feed_number;
 
     private ArrayList<NewsInfo> mNewsInfo;
 
@@ -56,14 +58,9 @@ public class MapsActivity extends FragmentActivity {
         });
 
         mNewsInfo = new ArrayList<NewsInfo>();
-        RSSLoader rssLoader = new RSSLoader(this, mNewsInfo, FEED_NHK);
+        feed_number = FEED_NHK;
+        RSSLoader rssLoader = new RSSLoader(this, mNewsInfo, feed_number);
         rssLoader.execute(FeedURL);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
     }
 
     @Override
@@ -139,6 +136,28 @@ public class MapsActivity extends FragmentActivity {
     private void setUpMap() {
         //mMap.addMarker(new MarkerOptions().position(INITIAL_LOCATION).title("Marker"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+    }
+
+
+    // menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings:
+                Log.d("menu/settings", "setting");
+                break;
+            default:
+                //return super.onOptionsItemSelected(item);
+                return false;
+        }
+
+        return true;
     }
 
     public void addMarker(LatLng _latlng, NewsInfo entry){
