@@ -12,10 +12,12 @@
         android:entryValues="@array/RSS_feeds_value"
         android:dialogTitle="Choose RSS Feed" />
 
-    <EditTextPreference
+    <ListPreference
         android:key="@string/prefMaxLoadNum"
         android:title="Max Load Number"
         android:summary="Edit Max Load Number"
-        android:dialogTitle="Enter Max Load Number (1-100)" />
+        android:entries="@array/Max_load_num"
+        android:entryValues="@array/Max_load_num"
+        android:dialogTitle="Choose Max Load Number" />
 
 </PreferenceScreen>

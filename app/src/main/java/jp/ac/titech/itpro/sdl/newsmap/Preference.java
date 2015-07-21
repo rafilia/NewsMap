@@ -3,7 +3,6 @@ package jp.ac.titech.itpro.sdl.newsmap;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.util.Log;
@@ -35,9 +34,9 @@ public class Preference extends Activity {
             RSSFeedList.setValueIndex(0);
             RSSFeedList.setSummary(getResources().getStringArray(R.array.RSS_feeds)[0]);
 
-            EditTextPreference LoadMaxValue = (EditTextPreference) findPreference("prefMaxLoadNum");
-            LoadMaxValue.setText("75");
-            LoadMaxValue.setSummary("75");
+            ListPreference LoadMaxValue = (ListPreference) findPreference("prefMaxLoadNum");
+            LoadMaxValue.setValueIndex(2);
+            LoadMaxValue.setSummary(getResources().getStringArray(R.array.Max_load_num)[2]);
 
             getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
         }
@@ -49,8 +48,8 @@ public class Preference extends Activity {
                 RSSFeedList.setSummary(getResources().getStringArray(R.array.RSS_feeds)[Integer.parseInt(RSSFeedList.getValue())]);
                 Log.i(TAG + "/changed", "set rss summary");
             } else if(s.equals("prefMaxLoadNum")){
-                EditTextPreference LoadMaxValue = (EditTextPreference) findPreference("prefMaxLoadNum");
-                LoadMaxValue.setSummary(LoadMaxValue.getText());
+                ListPreference LoadMaxValue = (ListPreference) findPreference("prefMaxLoadNum");
+                LoadMaxValue.setSummary(LoadMaxValue.getValue());
                 Log.i(TAG + "/changed", "set load max value summary");
             }
         }

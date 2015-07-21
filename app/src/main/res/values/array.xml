@@ -8,4 +8,11 @@
         <item>0</item>
         <item>1</item>
     </string-array>
+
+    <string-array name="Max_load_num">
+        <item>25</item>
+        <item>50</item>
+        <item>75</item>
+        <item>100</item>
+    </string-array>
 </resources>
