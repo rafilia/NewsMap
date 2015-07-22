@@ -35,7 +35,7 @@ public class MapsActivity extends FragmentActivity {
     // initial location
     private final static LatLng INITIAL_LOCATION = new LatLng(38.564, 138.978);
     private final static float INITIAL_ZOOM_LEVEL = (float) 5;
-    private final static float CLOSE_ZOOM_LEVEL = (float) 15;
+    private final static float CLOSE_ZOOM_LEVEL = (float) 13;
 
     private Button centerButton, reloadButton;
 
@@ -155,14 +155,14 @@ public class MapsActivity extends FragmentActivity {
                 // set MAP configuration
                 mMap.getUiSettings().setZoomControlsEnabled(true);
                 mMap.getUiSettings().setRotateGesturesEnabled(false);
+
                 mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
                     public void onInfoWindowClick(Marker marker) {
                         // marker.hideInfoWindow();
                         // show info window dialog
                         Bundle bundle = new Bundle();
-                        bundle.putString("title", marker.getTitle());
-                        bundle.putString("location", marker.getSnippet());
+                        bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID));
 
                         NewsInfoDialog nid = new NewsInfoDialog();
                         nid.setArguments(bundle);
@@ -191,6 +191,7 @@ public class MapsActivity extends FragmentActivity {
                         return null;
                     }
                 });
+
 
                 setUpMap();
             }

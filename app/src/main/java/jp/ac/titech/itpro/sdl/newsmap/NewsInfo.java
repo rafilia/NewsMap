@@ -17,6 +17,7 @@ public class NewsInfo implements Parcelable{
     private String location;
     private Date issue_date;
     private LatLng latlng;
+    private String overview;
 
     public int getID(){
         return id;
@@ -36,14 +37,18 @@ public class NewsInfo implements Parcelable{
     public LatLng getLatLng(){
         return latlng;
     }
+    public String getContents(){
+        return overview;
+    }
 
-    public NewsInfo(int _id ,String _title, String _url, String _location, Date _issue_date, LatLng _latlng) {
+    public NewsInfo(int _id ,String _title, String _url, String _location, Date _issue_date, LatLng _latlng, String _overview) {
         id = _id;
         title = _title;
         url = _url;
         location = _location;
         issue_date = _issue_date;
         latlng = _latlng;
+        overview = _overview;
     }
 
     public NewsInfo (Parcel parcel){
@@ -53,6 +58,7 @@ public class NewsInfo implements Parcelable{
         location = parcel.readString();
         issue_date = new Date(parcel.readLong());
         latlng = new LatLng(parcel.readDouble(), parcel.readDouble());
+        overview = parcel.readString();
     }
 
     @Override
@@ -69,6 +75,7 @@ public class NewsInfo implements Parcelable{
         parcel.writeLong(issue_date.getTime());
         parcel.writeDouble(latlng.latitude);
         parcel.writeDouble(latlng.longitude);
+        parcel.writeString(overview);
     }
 
     public static final Parcelable.Creator<NewsInfo> CREATOR

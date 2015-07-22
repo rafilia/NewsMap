@@ -172,7 +172,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                     Log.i(TAG + "/Location", "location cannot detect");
                 }
 
-                NewsInfo newsEntry = new NewsInfo(i, entry_title, entry_url, entry_location, entry_date, entry_latlng);
+                NewsInfo newsEntry = new NewsInfo(i, entry_title, entry_url, entry_location, entry_date, entry_latlng, main_text);
                 mNewsInfo.add(newsEntry);
 
                 if (i++ == mLoadNumber) break;

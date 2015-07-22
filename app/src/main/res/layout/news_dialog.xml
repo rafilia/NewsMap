@@ -12,6 +12,14 @@
         android:layout_marginBottom="10px"
         />
 
+    <TextView android:id="@+id/newsDialog_issueDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="issue date"
+        android:layout_gravity="right"
+        android:layout_marginRight="15px"
+        />
+
     <TextView android:id="@+id/newsDialog_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,6 +41,15 @@
             />
 
     </ScrollView>
+
+    <TextView android:id="@+id/newsDialog_url"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="url"
+        android:layout_gravity="right"
+        android:layout_marginRight="15px"
+        android:layout_marginBottom="15px"
+        />
 
     <LinearLayout
         android:layout_width="wrap_content"
