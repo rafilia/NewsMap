@@ -35,6 +35,7 @@ public class MapsActivity extends FragmentActivity {
     // initial location
     private final static LatLng INITIAL_LOCATION = new LatLng(38.564, 138.978);
     private final static float INITIAL_ZOOM_LEVEL = (float) 5;
+    private final static float CLOSE_ZOOM_LEVEL = (float) 15;
 
     private Button centerButton, reloadButton;
 
@@ -42,6 +43,7 @@ public class MapsActivity extends FragmentActivity {
                                              "http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml"};
 
     private ArrayList<NewsInfo> mNewsInfo;
+    private int currentNewsID=-1;
 
     private SharedPreferences sp;
     private ConnectivityManager cm;
@@ -156,7 +158,7 @@ public class MapsActivity extends FragmentActivity {
                 mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
                     public void onInfoWindowClick(Marker marker) {
-                        marker.hideInfoWindow();
+                        // marker.hideInfoWindow();
                         // show info window dialog
                         Bundle bundle = new Bundle();
                         bundle.putString("title", marker.getTitle());
@@ -176,8 +178,9 @@ public class MapsActivity extends FragmentActivity {
                         TextView title = (TextView) view.findViewById(R.id.info_title);
                         TextView location = (TextView) view.findViewById(R.id.info_location);
 
+                        currentNewsID = Integer.parseInt(marker.getSnippet());
                         title.setText(marker.getTitle());
-                        location.setText(marker.getSnippet());
+                        location.setText(mNewsInfo.get(currentNewsID).getLocation());
 
                         return view;
                     }
@@ -244,14 +247,15 @@ public class MapsActivity extends FragmentActivity {
 
     public void addMarker(NewsInfo entry){
         MarkerOptions mo = new MarkerOptions();
-        mo.position(entry.latlng);
-        mo.title(entry.title);
-        mo.snippet(entry.location);
+        mo.position(entry.getLatLng());
+        mo.title(entry.getTitle());
+        // use snippet filed to hold the id
+        mo.snippet(String.valueOf(entry.getID()));
         mo.draggable(false);
 
-        // icon color
+        // set icon color depending on its issue_date
         long current = currentTimeMillis();
-        long x = current - (entry.issue_date!=null? entry.issue_date.getTime() :0);
+        long x = current - (entry.getIssueDate()!=null? entry.getIssueDate().getTime() :0);
         BitmapDescriptor icon;
         if(x < 1000*3600*24) {
             icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
@@ -266,7 +270,7 @@ public class MapsActivity extends FragmentActivity {
     }
 
     public void lookCloser(){
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), CLOSE_ZOOM_LEVEL));
     }
 
     public void openURL(){

@@ -11,13 +11,34 @@ import java.util.Date;
  * Created by tm on 2015/07/19.
  */
 public class NewsInfo implements Parcelable{
-    String title;
-    String url;
-    String location;
-    Date issue_date;
-    LatLng latlng;
+    private int id;
+    private String title;
+    private String url;
+    private String location;
+    private Date issue_date;
+    private LatLng latlng;
 
-    public NewsInfo(String _title, String _url, String _location, Date _issue_date, LatLng _latlng) {
+    public int getID(){
+        return id;
+    }
+    public String getTitle(){
+        return title;
+    }
+    public String getURL(){
+        return url;
+    }
+    public String getLocation(){
+        return location;
+    }
+    public Date getIssueDate(){
+        return issue_date;
+    }
+    public LatLng getLatLng(){
+        return latlng;
+    }
+
+    public NewsInfo(int _id ,String _title, String _url, String _location, Date _issue_date, LatLng _latlng) {
+        id = _id;
         title = _title;
         url = _url;
         location = _location;
@@ -26,6 +47,7 @@ public class NewsInfo implements Parcelable{
     }
 
     public NewsInfo (Parcel parcel){
+        id = parcel.readInt();
         title = parcel.readString();
         url = parcel.readString();
         location = parcel.readString();
@@ -40,6 +62,7 @@ public class NewsInfo implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
         parcel.writeString(title);
         parcel.writeString(url);
         parcel.writeString(location);

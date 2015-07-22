@@ -172,7 +172,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                     Log.i(TAG + "/Location", "location cannot detect");
                 }
 
-                NewsInfo newsEntry = new NewsInfo(entry_title, entry_url, entry_location, entry_date, entry_latlng);
+                NewsInfo newsEntry = new NewsInfo(i, entry_title, entry_url, entry_location, entry_date, entry_latlng);
                 mNewsInfo.add(newsEntry);
 
                 if (i++ == mLoadNumber) break;
@@ -190,7 +190,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
         mProgressDialog.setProgress(98);
         // put markers on the map
         for(NewsInfo entry : mNewsInfo){
-            if(entry.latlng != null){
+            if(entry.getLatLng() != null){
                 mMapsActivity.addMarker(entry);
             }
         }
