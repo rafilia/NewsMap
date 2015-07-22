@@ -181,20 +181,23 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
             e.printStackTrace();
         }
 
+        //Collections.sort(mNewsInfo, new NewsInfoComparator());
         mMapsActivity.setNewsInfo(mNewsInfo);
         return null;
     }
 
     @Override
     protected void onPostExecute(Void result) {
-        mProgressDialog.setProgress(98);
         // put markers on the map
         for(NewsInfo entry : mNewsInfo){
             if(entry.getLatLng() != null){
                 mMapsActivity.addMarker(entry);
             }
         }
-        mProgressDialog.dismiss();
+        mMapsActivity.moveCameraToPrev();
+        if(mProgressDialog != null) {
+            mProgressDialog.dismiss();
+        }
     }
 
     @Override

@@ -8,6 +8,7 @@ import java.util.Date;
 /**
  * Created by tm on 2015/07/22.
  */
+// sort based on LatLng (longitude, latitude) and then date
 public class NewsInfoComparator implements Comparator<NewsInfo> {
     @Override
     public int compare(NewsInfo newsInfo, NewsInfo newsInfo2) {

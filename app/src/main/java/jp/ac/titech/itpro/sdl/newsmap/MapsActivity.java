@@ -20,6 +20,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -36,6 +37,11 @@ public class MapsActivity extends FragmentActivity {
     private final static LatLng INITIAL_LOCATION = new LatLng(38.564, 138.978);
     private final static float INITIAL_ZOOM_LEVEL = (float) 5;
     private final static float CLOSE_ZOOM_LEVEL = (float) 13;
+
+    private float prevZoomLevel = INITIAL_ZOOM_LEVEL;
+    private float backZoomLevel;
+    private LatLng prevLatLng = INITIAL_LOCATION;
+    private LatLng backLatLng;
 
     private final static String FeedURL[] = {"http://www3.nhk.or.jp/rss/news/cat1.xml",
                                              "http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml"};
@@ -57,7 +63,7 @@ public class MapsActivity extends FragmentActivity {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
-        Button centerButton, reloadButton;
+        Button centerButton, reloadButton, backButton;
         centerButton = (Button) findViewById(R.id.centerButton);
         centerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +82,16 @@ public class MapsActivity extends FragmentActivity {
             }
         });
 
+        backButton = (Button) findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Button b = (Button) findViewById(R.id.backButton);
+                b.setVisibility(View.INVISIBLE);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(backLatLng, backZoomLevel));
+            }
+        });
+
         if(mNewsInfo == null){
             mNewsInfo = new ArrayList<>();
         }
@@ -90,8 +106,10 @@ public class MapsActivity extends FragmentActivity {
 
     @Override
     protected void onResume() {
+        Log.i(TAG+"/onResume", "onResume");
         super.onResume();
         setUpMapIfNeeded();
+        setUpMap();
         loadRSS();
     }
 
@@ -101,6 +119,10 @@ public class MapsActivity extends FragmentActivity {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("NewsInfo", mNewsInfo);
         outState.putInt("currentNewsID", currentNewsID);
+        outState.putFloat("prevZoomLevel", prevZoomLevel);
+        outState.putParcelable("prevLatLng", prevLatLng);
+        outState.putFloat("backZoomLevel", backZoomLevel);
+        outState.putParcelable("backLatLng", backLatLng);
     }
 
     @Override
@@ -109,9 +131,14 @@ public class MapsActivity extends FragmentActivity {
         super.onRestoreInstanceState(savedInstanceState);
         mNewsInfo = savedInstanceState.getParcelableArrayList("NewsInfo");
         currentNewsID = savedInstanceState.getInt("currentNewsID");
+        prevZoomLevel = savedInstanceState.getFloat("prevZoomLevel");
+        prevLatLng = savedInstanceState.getParcelable("prevLatLng");
+        backZoomLevel = savedInstanceState.getFloat("backZoomLevel");
+        backLatLng = savedInstanceState.getParcelable("backLatLng");
     }
 
     private void loadRSS() {
+        Log.i(TAG+"/loadRSS", "loadRSS");
         NetworkInfo nInfo = cm.getActiveNetworkInfo();
         if(nInfo != null && nInfo.isConnected()) {
             mMap.clear();
@@ -175,7 +202,7 @@ public class MapsActivity extends FragmentActivity {
                     @Override
                     //public View getInfoWindow(Marker marker) {
                     public View getInfoContents(Marker marker) {
-                            View view = getLayoutInflater().inflate(R.layout.info_window, null);
+                        View view = getLayoutInflater().inflate(R.layout.info_window, null);
                         TextView title = (TextView) view.findViewById(R.id.info_title);
                         TextView location = (TextView) view.findViewById(R.id.info_location);
 
@@ -188,13 +215,19 @@ public class MapsActivity extends FragmentActivity {
 
                     @Override
                     public View getInfoWindow(Marker marker) {
-                    //public View getInfoContents(Marker marker) {
+                        //public View getInfoContents(Marker marker) {
                         return null;
                     }
                 });
 
-
-                setUpMap();
+                mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                    @Override
+                    public void onCameraChange(CameraPosition cameraPosition) {
+                        prevLatLng = cameraPosition.target;
+                        prevZoomLevel = cameraPosition.zoom;
+                    }
+                });
+                //setUpMap();
             }
         }
     }
@@ -206,7 +239,8 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevLatLng, prevZoomLevel));
     }
 
 
@@ -271,7 +305,15 @@ public class MapsActivity extends FragmentActivity {
         mMap.addMarker(mo);
     }
 
+    public void moveCameraToPrev(){
+        //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(prevLatLng, prevZoomLevel));
+    }
+
     public void lookCloser(){
+        backZoomLevel = mMap.getCameraPosition().zoom;
+        backLatLng = mMap.getCameraPosition().target;
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), CLOSE_ZOOM_LEVEL));
+        Button b = (Button) findViewById(R.id.backButton);
+        b.setVisibility(View.VISIBLE);
     }
 }
