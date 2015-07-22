@@ -265,4 +265,11 @@ public class MapsActivity extends FragmentActivity {
         mMap.addMarker(mo);
     }
 
+    public void lookCloser(){
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+    }
+
+    public void openURL(){
+
+    }
 }
