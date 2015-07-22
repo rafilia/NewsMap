@@ -17,7 +17,6 @@ import com.sun.syndication.io.XmlReader;
 
 import org.jsoup.Jsoup;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -178,8 +177,6 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
 
                 if (i++ == mLoadNumber) break;
             }
-        } catch (MalformedURLException e){
-            e.printStackTrace();
         } catch  (Exception e) {
             e.printStackTrace();
         }

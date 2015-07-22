@@ -44,7 +44,6 @@ public class MapsActivity extends FragmentActivity {
     private ArrayList<NewsInfo> mNewsInfo;
 
     private SharedPreferences sp;
-
     private ConnectivityManager cm;
 
     @Override
@@ -79,6 +78,7 @@ public class MapsActivity extends FragmentActivity {
         if(mNewsInfo == null){
             mNewsInfo = new ArrayList<>();
         }
+
     }
 
     @Override
@@ -115,7 +115,7 @@ public class MapsActivity extends FragmentActivity {
             RSSLoader rssLoader = new RSSLoader(this);
             rssLoader.execute(FeedURL);
         } else {
-            Toast.makeText(this, "No Network Connectin! Cannot Load News Data!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "No Network Connection! Cannot Load News Data!", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -157,8 +157,12 @@ public class MapsActivity extends FragmentActivity {
                     @Override
                     public void onInfoWindowClick(Marker marker) {
                         marker.hideInfoWindow();
+                        // show info window dialog
+                        NewsInfoDialog nid = new NewsInfoDialog();
+                        nid.show(getFragmentManager(), "newsInfo");
                     }
                 });
+
                 mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                     @Override
                     //public View getInfoWindow(Marker marker) {
