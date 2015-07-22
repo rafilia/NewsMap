@@ -101,6 +101,7 @@ public class MapsActivity extends FragmentActivity {
         Log.i(TAG, "onSavedInstanceState");
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("NewsInfo", mNewsInfo);
+        outState.putInt("currentNewsID", currentNewsID);
     }
 
     @Override
@@ -108,6 +109,7 @@ public class MapsActivity extends FragmentActivity {
         Log.i(TAG, "onRestoreInstanceState");
         super.onRestoreInstanceState(savedInstanceState);
         mNewsInfo = savedInstanceState.getParcelableArrayList("NewsInfo");
+        currentNewsID = savedInstanceState.getInt("currentNewsID");
     }
 
     private void loadRSS() {

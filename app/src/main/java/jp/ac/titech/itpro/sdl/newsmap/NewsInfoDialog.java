@@ -2,6 +2,8 @@ package jp.ac.titech.itpro.sdl.newsmap;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.TextView;
  */
 public class NewsInfoDialog extends DialogFragment {
     private final static String TAG = "NewsInfoDialog";
+    private Uri uri;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -35,12 +38,18 @@ public class NewsInfoDialog extends DialogFragment {
         Button openButton = (Button) dialog.findViewById(R.id.newsDialog_open);
         Button lookButton = (Button) dialog.findViewById(R.id.newsDialog_look);
 
+        uri = Uri.parse(entry.getURL());
+
         openButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "open button clicked");
-                MapsActivity activity = (MapsActivity) getActivity();
-                activity.openURL();
+                //MapsActivity activity = (MapsActivity) getActivity();
+                //activity.openURL();
+
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+
             }
         });
 
