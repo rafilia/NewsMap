@@ -52,6 +52,8 @@ public class MapsActivity extends FragmentActivity {
     private SharedPreferences sp;
     private ConnectivityManager cm;
 
+    private int backButtonVisibility = View.INVISIBLE;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
@@ -88,6 +90,7 @@ public class MapsActivity extends FragmentActivity {
             public void onClick(View view) {
                 Button b = (Button) findViewById(R.id.backButton);
                 b.setVisibility(View.INVISIBLE);
+                backButtonVisibility = View.INVISIBLE;
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(backLatLng, backZoomLevel));
             }
         });
@@ -108,8 +111,12 @@ public class MapsActivity extends FragmentActivity {
     protected void onResume() {
         Log.i(TAG+"/onResume", "onResume");
         super.onResume();
+
         setUpMapIfNeeded();
         setUpMap();
+        Button backButton = (Button) findViewById(R.id.backButton);
+        backButton.setVisibility(backButtonVisibility);
+
         loadRSS();
     }
 
@@ -119,10 +126,13 @@ public class MapsActivity extends FragmentActivity {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("NewsInfo", mNewsInfo);
         outState.putInt("currentNewsID", currentNewsID);
+
         outState.putFloat("prevZoomLevel", prevZoomLevel);
         outState.putParcelable("prevLatLng", prevLatLng);
         outState.putFloat("backZoomLevel", backZoomLevel);
         outState.putParcelable("backLatLng", backLatLng);
+
+        outState.putInt("backButtonVisibility", backButtonVisibility);
     }
 
     @Override
@@ -131,10 +141,13 @@ public class MapsActivity extends FragmentActivity {
         super.onRestoreInstanceState(savedInstanceState);
         mNewsInfo = savedInstanceState.getParcelableArrayList("NewsInfo");
         currentNewsID = savedInstanceState.getInt("currentNewsID");
+
         prevZoomLevel = savedInstanceState.getFloat("prevZoomLevel");
         prevLatLng = savedInstanceState.getParcelable("prevLatLng");
         backZoomLevel = savedInstanceState.getFloat("backZoomLevel");
         backLatLng = savedInstanceState.getParcelable("backLatLng");
+
+        backButtonVisibility = savedInstanceState.getInt("backButtonVisibility");
     }
 
     private void loadRSS() {
@@ -313,7 +326,9 @@ public class MapsActivity extends FragmentActivity {
         backZoomLevel = mMap.getCameraPosition().zoom;
         backLatLng = mMap.getCameraPosition().target;
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), CLOSE_ZOOM_LEVEL));
+
         Button b = (Button) findViewById(R.id.backButton);
         b.setVisibility(View.VISIBLE);
+        backButtonVisibility = View.VISIBLE;
     }
 }
