@@ -17,6 +17,7 @@ import com.sun.syndication.io.XmlReader;
 
 import org.jsoup.Jsoup;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -156,7 +157,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                 // find location info
                 Matcher m = address_pattern.matcher(main_text);
                 String entry_location = "";
-                LatLng entry_latlng = null;
+                LatLng entry_latlng = new LatLng(0,0);
                 if (m.find()) {
                     entry_location = m.group();
                     Log.i(TAG + "/Location", entry_location);
@@ -177,7 +178,9 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
 
                 if (i++ == mLoadNumber) break;
             }
-        } catch (Exception e) {
+        } catch (MalformedURLException e){
+            e.printStackTrace();
+        } catch  (Exception e) {
             e.printStackTrace();
         }
 
@@ -191,7 +194,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
         // put markers on the map
         for(NewsInfo entry : mNewsInfo){
             if(entry.latlng != null){
-                mMapsActivity.addMarker(entry.latlng, entry);
+                mMapsActivity.addMarker(entry);
             }
         }
         mProgressDialog.dismiss();
