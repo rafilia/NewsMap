@@ -16,10 +16,12 @@ public class NewsInfoDialog extends DialogFragment {
         Dialog dialog = new Dialog(getActivity());
         dialog.setContentView(R.layout.news_dialog);
 
-        TextView descText = (TextView) dialog.findViewById(R.id.newsDialog_desc);
+        TextView locationText = (TextView) dialog.findViewById(R.id.newsDialog_location);
+        TextView descText = (TextView) dialog.findViewById(R.id.newsDialog_descText);
 
         dialog.setTitle(getArguments().getString("title"));
-        descText.setText(getArguments().getString("location"));
+        locationText.setText(getArguments().getString("location"));
+        descText.setText("detail description");
 
         Button openButton = (Button) dialog.findViewById(R.id.newsDialog_open);
         Button lookButton = (Button) dialog.findViewById(R.id.newsDialog_look);
