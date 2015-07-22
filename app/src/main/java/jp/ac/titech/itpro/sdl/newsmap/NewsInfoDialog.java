@@ -3,6 +3,7 @@ package jp.ac.titech.itpro.sdl.newsmap;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -13,12 +14,40 @@ public class NewsInfoDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = new Dialog(getActivity());
-        dialog.setTitle("title");
+        dialog.setContentView(R.layout.news_dialog);
 
-        TextView title = (TextView) dialog.findViewById(R.id.newsDialog_desc);
-        Button ok_button = (Button) dialog.findViewById(R.id.newsDialog_ok);
-        Button url_button = (Button) dialog.findViewById(R.id.newsDialog_ok);
+        TextView descText = (TextView) dialog.findViewById(R.id.newsDialog_desc);
+
+        dialog.setTitle(getArguments().getString("title"));
+        descText.setText(getArguments().getString("location"));
+
+        Button openButton = (Button) dialog.findViewById(R.id.newsDialog_open);
+        Button lookButton = (Button) dialog.findViewById(R.id.newsDialog_look);
+
+        openButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        lookButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
         return dialog;
+
+//        return new AlertDialog.Builder(getActivity())
+//                .setTitle("title")
+//                .setPositiveButton("open URL", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//
+//                    }
+//                })
+//                .create();
     }
 }

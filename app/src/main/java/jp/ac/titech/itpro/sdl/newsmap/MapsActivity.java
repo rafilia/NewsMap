@@ -158,8 +158,13 @@ public class MapsActivity extends FragmentActivity {
                     public void onInfoWindowClick(Marker marker) {
                         marker.hideInfoWindow();
                         // show info window dialog
+                        Bundle bundle = new Bundle();
+                        bundle.putString("title", marker.getTitle());
+                        bundle.putString("location", marker.getSnippet());
+
                         NewsInfoDialog nid = new NewsInfoDialog();
-                        nid.show(getFragmentManager(), "newsInfo");
+                        nid.setArguments(bundle);
+                        nid.show(getFragmentManager(), "newsInfoDialog");
                     }
                 });
 

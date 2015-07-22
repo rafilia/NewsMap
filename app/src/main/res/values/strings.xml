@@ -8,4 +8,7 @@
 
     <string name="center_button">Center</string>
     <string name="reload_button">Reload</string>
+
+    <string name="newsDialog_look">近くを見る</string>
+    <string name="newsDialog_open">ブラウザで開く</string>
 </resources>
