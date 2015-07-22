@@ -189,12 +189,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
     @Override
     protected void onPostExecute(Void result) {
         // put markers on the map
-        for(NewsInfo entry : mNewsInfo){
-            if(entry.getLatLng() != null){
-                mMapsActivity.addMarker(entry);
-            }
-        }
-        mMapsActivity.moveCameraToPrev();
+        mMapsActivity.addMarkers();
         if(mProgressDialog != null) {
             mProgressDialog.dismiss();
         }

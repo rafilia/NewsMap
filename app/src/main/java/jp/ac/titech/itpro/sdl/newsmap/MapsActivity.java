@@ -48,6 +48,8 @@ public class MapsActivity extends FragmentActivity {
 
     private ArrayList<NewsInfo> mNewsInfo;
     private int currentNewsID=-1;
+    private ArrayList<Marker> mMarkers;
+    private Boolean showCurrentMarkerInfo = false;
 
     private SharedPreferences sp;
     private ConnectivityManager cm;
@@ -98,6 +100,7 @@ public class MapsActivity extends FragmentActivity {
         if(mNewsInfo == null){
             mNewsInfo = new ArrayList<>();
         }
+        mMarkers = new ArrayList<>();
 
     }
 
@@ -126,6 +129,8 @@ public class MapsActivity extends FragmentActivity {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("NewsInfo", mNewsInfo);
         outState.putInt("currentNewsID", currentNewsID);
+        outState.putBoolean("showCurrentMarkerInfo", showCurrentMarkerInfo);
+
 
         outState.putFloat("prevZoomLevel", prevZoomLevel);
         outState.putParcelable("prevLatLng", prevLatLng);
@@ -141,6 +146,7 @@ public class MapsActivity extends FragmentActivity {
         super.onRestoreInstanceState(savedInstanceState);
         mNewsInfo = savedInstanceState.getParcelableArrayList("NewsInfo");
         currentNewsID = savedInstanceState.getInt("currentNewsID");
+        showCurrentMarkerInfo = savedInstanceState.getBoolean("showCurrentMarkerInfo");
 
         prevZoomLevel = savedInstanceState.getFloat("prevZoomLevel");
         prevLatLng = savedInstanceState.getParcelable("prevLatLng");
@@ -155,6 +161,7 @@ public class MapsActivity extends FragmentActivity {
         NetworkInfo nInfo = cm.getActiveNetworkInfo();
         if(nInfo != null && nInfo.isConnected()) {
             mMap.clear();
+            mMarkers.clear();
             RSSLoader rssLoader = new RSSLoader(this);
             rssLoader.execute(FeedURL);
         } else {
@@ -200,7 +207,6 @@ public class MapsActivity extends FragmentActivity {
                 mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
                     public void onInfoWindowClick(Marker marker) {
-                        // marker.hideInfoWindow();
                         // show info window dialog
                         Bundle bundle = new Bundle();
                         bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID));
@@ -223,6 +229,8 @@ public class MapsActivity extends FragmentActivity {
                         title.setText(marker.getTitle());
                         location.setText(mNewsInfo.get(currentNewsID).getLocation());
 
+                        showCurrentMarkerInfo = true;
+
                         return view;
                     }
 
@@ -240,6 +248,13 @@ public class MapsActivity extends FragmentActivity {
                         prevZoomLevel = cameraPosition.zoom;
                     }
                 });
+
+                mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng latLng) {
+                        showCurrentMarkerInfo = false;
+                    }
+                });
                 //setUpMap();
             }
         }
@@ -252,7 +267,7 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL))
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevLatLng, prevZoomLevel));
     }
 
@@ -287,14 +302,29 @@ public class MapsActivity extends FragmentActivity {
             if(sp.getBoolean("needRefresh", false)){
                 Log.i(TAG, "to be refreshed");
                 // delete current news info
-                mNewsInfo = new ArrayList<>();
+                mNewsInfo.clear();
                 loadRSS();
                 sp.edit().putBoolean("needRefresh", false).commit();
             }
         }
     }
 
+    public void addMarkers(){
+        for(NewsInfo entry : mNewsInfo){
+            if(entry.getLatLng() != null){
+                addMarker(entry);
+            }
+        }
+        moveCameraToPrev();
+
+        if(showCurrentMarkerInfo){
+            mMarkers.get(currentNewsID).showInfoWindow();
+        }
+    }
+
     public void addMarker(NewsInfo entry){
+        Log.i(TAG+"/addMarker", "add marker");
+
         MarkerOptions mo = new MarkerOptions();
         mo.position(entry.getLatLng());
         mo.title(entry.getTitle());
@@ -315,7 +345,8 @@ public class MapsActivity extends FragmentActivity {
         }
         mo.icon(icon);
 
-        mMap.addMarker(mo);
+        Marker m = mMap.addMarker(mo);
+        mMarkers.add(m);
     }
 
     public void moveCameraToPrev(){
