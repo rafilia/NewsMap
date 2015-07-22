@@ -37,8 +37,6 @@ public class MapsActivity extends FragmentActivity {
     private final static float INITIAL_ZOOM_LEVEL = (float) 5;
     private final static float CLOSE_ZOOM_LEVEL = (float) 13;
 
-    private Button centerButton, reloadButton;
-
     private final static String FeedURL[] = {"http://www3.nhk.or.jp/rss/news/cat1.xml",
                                              "http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml"};
 
@@ -59,6 +57,7 @@ public class MapsActivity extends FragmentActivity {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
+        Button centerButton, reloadButton;
         centerButton = (Button) findViewById(R.id.centerButton);
         centerButton.setOnClickListener(new View.OnClickListener() {
             @Override
