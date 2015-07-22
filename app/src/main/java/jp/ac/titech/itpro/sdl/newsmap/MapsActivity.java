@@ -275,8 +275,4 @@ public class MapsActivity extends FragmentActivity {
     public void lookCloser(){
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), CLOSE_ZOOM_LEVEL));
     }
-
-    public void openURL(){
-
-    }
 }

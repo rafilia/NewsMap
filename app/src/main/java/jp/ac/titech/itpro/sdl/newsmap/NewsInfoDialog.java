@@ -44,12 +44,8 @@ public class NewsInfoDialog extends DialogFragment {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "open button clicked");
-                //MapsActivity activity = (MapsActivity) getActivity();
-                //activity.openURL();
-
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(intent);
-
             }
         });
 
