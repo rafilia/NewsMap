@@ -28,13 +28,6 @@
             android:layout_gravity="left"
             android:text="date"
             />
-        <TextView android:id="@+id/info_location"
-            android:layout_weight="10"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_gravity="right"
-            android:text="location"
-            />
 
     </LinearLayout>
 
