@@ -26,13 +26,15 @@ public class NewsInfoListAdapter extends ArrayAdapter<NewsAbstList> {
             convertView = layoutInflater.inflate(R.layout.info_window, null);
         }
 
-        TextView infoTitle, infoLocation;
+        TextView infoTitle, infoLocation, infoDate;
         infoTitle = (TextView) convertView.findViewById(R.id.info_title);
         infoLocation = (TextView) convertView.findViewById(R.id.info_location);
+        infoDate = (TextView) convertView.findViewById(R.id.info_date);
 
         NewsAbstList item = getItem(position);
         infoTitle.setText(item.getTitle());
         infoLocation.setText(item.getLocation());
+        infoDate.setText(item.getDate());
 
         return convertView;
     }

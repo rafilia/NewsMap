@@ -234,7 +234,10 @@ public class MapsActivity extends FragmentActivity {
                         View view = getLayoutInflater().inflate(R.layout.info_window_list, null);
                         ListView list = (ListView) view.findViewById(R.id.info_list);
 
-                        NewsAbstList item = new NewsAbstList(marker.getTitle(), mNewsInfo.get(currentNewsID).getLocation());
+                        NewsAbstList item = new NewsAbstList(marker.getTitle(),
+                                mNewsInfo.get(currentNewsID).getLocation(),
+                                mNewsInfo.get(currentNewsID).getIssueDate().toString()
+                        );
 
                         List<NewsAbstList> nList = new ArrayList<>();
                         nList.add(item);
