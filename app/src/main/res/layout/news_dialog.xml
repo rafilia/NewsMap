@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="#000000"
+        android:layout_marginTop="10px"
+        android:layout_marginBottom="10px"
+        />
+
+    <TextView android:id="@+id/newsDialog_issueDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="issue date"
+        android:layout_gravity="right"
+        android:layout_marginRight="15px"
+        />
+
+    <TextView android:id="@+id/newsDialog_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="location"
+        android:layout_gravity="right"
+        android:layout_marginRight="15px"
+        />
+
+    <ScrollView android:id="@+id/newsDialog_descView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_margin="15px"
+        >
+
+        <TextView android:id="@+id/newsDialog_descText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="description"
+            />
+
+    </ScrollView>
+
+    <TextView android:id="@+id/newsDialog_url"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="url"
+        android:layout_gravity="right"
+        android:layout_marginRight="15px"
+        android:layout_marginBottom="15px"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        >
+
+        <Button android:id="@+id/newsDialog_prev"
+            android:layout_width="300px"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@string/newsDialog_prev"
+            />
+        <Button android:id="@+id/newsDialog_look"
+            android:layout_width="300px"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@string/newsDialog_look"
+            />
+        <Button android:id="@+id/newsDialog_open"
+            android:layout_width="300px"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@string/newsDialog_open"
+            />
+        <Button android:id="@+id/newsDialog_next"
+            android:layout_width="300px"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@string/newsDialog_next"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>

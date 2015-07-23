@@ -1,37 +1,204 @@
 package jp.ac.titech.itpro.sdl.newsmap;
 
-import android.support.v4.app.FragmentActivity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
+import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.System.currentTimeMillis;
 
 public class MapsActivity extends FragmentActivity {
+    private final static String TAG = "MapsActivity";
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    // initial location
+    private final static LatLng INITIAL_LOCATION = new LatLng(38.564, 138.978);
+    private final static float INITIAL_ZOOM_LEVEL = (float) 5;
+    private final static float CLOSE_ZOOM_LEVEL = (float) 13;
+
+    private float prevZoomLevel = INITIAL_ZOOM_LEVEL;
+    private float backZoomLevel;
+    private LatLng prevLatLng = INITIAL_LOCATION;
+    private LatLng backLatLng;
+
+    private final static String FeedURL[] = {"http://www3.nhk.or.jp/rss/news/cat1.xml",
+                                             "http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml"};
+
+    private ArrayList<NewsInfo> mNewsInfo;
+    private int currentNewsID=0;
+    private ArrayList<Marker> mMarkers;
+    private Boolean showCurrentMarkerInfo = true;
+
+    private SharedPreferences sp;
+    private ConnectivityManager cm;
+
+    private int backButtonVisibility = View.INVISIBLE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
+        cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+
+        Button centerButton, reloadButton, backButton, prevButton, newestButton, nextButton;
+        centerButton = (Button) findViewById(R.id.centerButton);
+        centerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL));
+            }
+        });
+
+        reloadButton = (Button) findViewById(R.id.reloadButton);
+        reloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // force reload map
+                mNewsInfo =  new ArrayList<>();
+                currentNewsID = 0;
+                loadRSS();
+            }
+        });
+
+        backButton = (Button) findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Button b = (Button) findViewById(R.id.backButton);
+                b.setVisibility(View.INVISIBLE);
+                backButtonVisibility = View.INVISIBLE;
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(backLatLng, backZoomLevel));
+            }
+        });
+
+        prevButton = (Button) findViewById(R.id.prevButton);
+        prevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPrevMarker(true);
+            }
+        });
+        nextButton = (Button) findViewById(R.id.nextButton);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showNextMarker(true);
+            }
+        });
+        newestButton = (Button) findViewById(R.id.newestButton);
+        newestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showNewestMarker(true);
+            }
+        });
+
+        if(mNewsInfo == null){
+            mNewsInfo = new ArrayList<>();
+        }
+        mMarkers = new ArrayList<>();
+
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
+    protected void onStart() {
+        Log.i(TAG, "onStart");
+        super.onStart();
     }
 
     @Override
     protected void onResume() {
+        Log.i(TAG+"/onResume", "onResume");
         super.onResume();
+
         setUpMapIfNeeded();
+        setUpMap();
+        Button backButton = (Button) findViewById(R.id.backButton);
+        backButton.setVisibility(backButtonVisibility);
+
+        loadRSS();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.i(TAG, "onSavedInstanceState");
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("NewsInfo", mNewsInfo);
+        outState.putInt("currentNewsID", currentNewsID);
+        outState.putBoolean("showCurrentMarkerInfo", showCurrentMarkerInfo);
+
+
+        outState.putFloat("prevZoomLevel", prevZoomLevel);
+        outState.putParcelable("prevLatLng", prevLatLng);
+        outState.putFloat("backZoomLevel", backZoomLevel);
+        outState.putParcelable("backLatLng", backLatLng);
+
+        outState.putInt("backButtonVisibility", backButtonVisibility);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.i(TAG, "onRestoreInstanceState");
+        super.onRestoreInstanceState(savedInstanceState);
+        mNewsInfo = savedInstanceState.getParcelableArrayList("NewsInfo");
+        currentNewsID = savedInstanceState.getInt("currentNewsID");
+        showCurrentMarkerInfo = savedInstanceState.getBoolean("showCurrentMarkerInfo");
+
+        prevZoomLevel = savedInstanceState.getFloat("prevZoomLevel");
+        prevLatLng = savedInstanceState.getParcelable("prevLatLng");
+        backZoomLevel = savedInstanceState.getFloat("backZoomLevel");
+        backLatLng = savedInstanceState.getParcelable("backLatLng");
+
+        backButtonVisibility = savedInstanceState.getInt("backButtonVisibility");
+    }
+
+    private void loadRSS() {
+        Log.i(TAG+"/loadRSS", "loadRSS");
+        NetworkInfo nInfo = cm.getActiveNetworkInfo();
+        if(nInfo != null && nInfo.isConnected()) {
+            mMap.clear();
+            mMarkers.clear();
+            RSSLoader rssLoader = new RSSLoader(this);
+            rssLoader.execute(FeedURL);
+        } else {
+            Toast.makeText(this, "No Network Connection! Cannot Load News Data!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public ArrayList<NewsInfo> getNewsInfo(){
+        return mNewsInfo;
+    }
+
+    public void setNewsInfo(ArrayList<NewsInfo> newsinfo){
+        mNewsInfo = newsinfo;
     }
 
     /**
@@ -57,7 +224,85 @@ public class MapsActivity extends FragmentActivity {
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                setUpMap();
+                // set MAP configuration
+                mMap.getUiSettings().setZoomControlsEnabled(true);
+                mMap.getUiSettings().setRotateGesturesEnabled(false);
+
+                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(Marker marker) {
+                        // show info window dialog
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID));
+
+                        NewsInfoDialog nid = new NewsInfoDialog();
+                        nid.setArguments(bundle);
+                        nid.show(getFragmentManager(), "newsInfoDialog");
+                    }
+                });
+
+                mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                    @Override
+                    //public View getInfoWindow(Marker marker) {
+                    public View getInfoContents(Marker marker) {
+                        currentNewsID = Integer.parseInt(marker.getSnippet());
+                        showCurrentMarkerInfo = true;
+
+                        View view = getLayoutInflater().inflate(R.layout.info_window_list, null);
+                        ListView list = (ListView) view.findViewById(R.id.info_list);
+
+                        NewsAbstList item = new NewsAbstList(marker.getTitle(),
+                                mNewsInfo.get(currentNewsID).getLocation(),
+                                mNewsInfo.get(currentNewsID).getIssueDate().toString()
+                        );
+
+                        List<NewsAbstList> nList = new ArrayList<>();
+                        nList.add(item);
+                        NewsInfoListAdapter adapter = new NewsInfoListAdapter(getBaseContext(), 0, nList);
+
+                        list.setAdapter(adapter);
+
+                        // NOT work (can't get event)
+//                        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                            @Override
+//                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                                Log.i(TAG+"/marker", "news list item clicked");
+//                                // show info window dialog
+//                                Bundle bundle = new Bundle();
+//                                bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID));
+//
+//                                NewsInfoDialog nid = new NewsInfoDialog();
+//                                nid.setArguments(bundle);
+//                                nid.show(getFragmentManager(), "newsInfoDialog");
+//                            }
+//                        });
+
+                        return view;
+                    }
+
+                    @Override
+                    public View getInfoWindow(Marker marker) {
+                    //public View getInfoContents(Marker marker) {
+                        return null;
+                    }
+                });
+
+
+                mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                    @Override
+                    public void onCameraChange(CameraPosition cameraPosition) {
+                        prevLatLng = cameraPosition.target;
+                        prevZoomLevel = cameraPosition.zoom;
+                    }
+                });
+
+                mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng latLng) {
+                        showCurrentMarkerInfo = false;
+                    }
+                });
+                //setUpMap();
             }
         }
     }
@@ -69,6 +314,155 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INITIAL_LOCATION, INITIAL_ZOOM_LEVEL))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevLatLng, prevZoomLevel));
+    }
+
+
+    // menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings:
+                Log.d("menu/settings", "setting");
+                Intent intent = new Intent(getApplicationContext(), Preference.class);
+                startActivityForResult(intent, Consts.FROM_PREF);
+                break;
+            default:
+                //return super.onOptionsItemSelected(item);
+                return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Consts.FROM_PREF) {
+            Log.i(TAG, "return from Preferences");
+            if(sp.getBoolean("needRefresh", false)){
+                Log.i(TAG, "to be refreshed");
+                // delete current news info
+                mNewsInfo.clear();
+                currentNewsID=0;
+                loadRSS();
+                sp.edit().putBoolean("needRefresh", false).commit();
+            }
+        }
+    }
+
+    public void addMarkers(){
+        if(mNewsInfo.isEmpty()){
+            Log.i(TAG, "mNewsInfo is empty!");
+            return;
+        }
+
+        for(NewsInfo entry : mNewsInfo){
+            if(entry.getLatLng() != null){
+                addMarker(entry);
+            }
+        }
+
+        if(showCurrentMarkerInfo){
+            mMarkers.get(currentNewsID).showInfoWindow();
+        }
+    }
+
+    public void addMarker(NewsInfo entry){
+        Log.i(TAG+"/addMarker", "add marker");
+
+        MarkerOptions mo = new MarkerOptions();
+        mo.position(entry.getLatLng());
+        mo.title(entry.getTitle());
+        // use snippet filed to hold the id
+        mo.snippet(String.valueOf(entry.getID()));
+        mo.draggable(false);
+
+        // set icon color depending on its issue_date
+        long current = currentTimeMillis();
+        long x = current - (entry.getIssueDate()!=null? entry.getIssueDate().getTime() :0);
+        BitmapDescriptor icon;
+        if(x < 1000*3600*24) {
+            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+        } else if(x < 1000*3600*24*2){
+            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
+        } else {
+            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+        }
+        mo.icon(icon);
+
+        Marker m = mMap.addMarker(mo);
+        mMarkers.add(m);
+    }
+
+    // move to prev/next/newest marker and show info window
+    public void showPrevMarker(Boolean anime){
+        if(mNewsInfo.isEmpty()) return;
+
+        if(--currentNewsID < 0) currentNewsID=mNewsInfo.size()-1;
+
+        showCurrentMarkerInfo = true;
+        mMarkers.get(currentNewsID).showInfoWindow();
+
+        if(anime) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+        else mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+    }
+    public void showNextMarker(Boolean anime){
+        if(mNewsInfo.isEmpty()) return;
+
+        if(++currentNewsID == mNewsInfo.size()) currentNewsID=0;
+
+        showCurrentMarkerInfo = true;
+        mMarkers.get(currentNewsID).showInfoWindow();
+        if(anime) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+        else mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+    }
+    public void showNewestMarker(Boolean anime){
+        if(mNewsInfo.isEmpty()) return;
+
+        currentNewsID=0;
+        showCurrentMarkerInfo = true;
+        mMarkers.get(currentNewsID).showInfoWindow();
+
+        if(anime) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+        else mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+    }
+
+    public void lookCloser(){
+        backZoomLevel = mMap.getCameraPosition().zoom;
+        backLatLng = mMap.getCameraPosition().target;
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), CLOSE_ZOOM_LEVEL));
+
+        Button b = (Button) findViewById(R.id.backButton);
+        b.setVisibility(View.VISIBLE);
+        backButtonVisibility = View.VISIBLE;
+    }
+
+    // show next/prev dialog
+    public void openNextDialog(){
+        showNextMarker(false);
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID));
+
+        NewsInfoDialog nid = new NewsInfoDialog();
+        nid.setArguments(bundle);
+        nid.show(getFragmentManager(), "newsInfoDialog");
+    }
+    public void openPrevDialog(){
+        showPrevMarker(false);
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID));
+
+        NewsInfoDialog nid = new NewsInfoDialog();
+        nid.setArguments(bundle);
+        nid.show(getFragmentManager(), "newsInfoDialog");
     }
 }

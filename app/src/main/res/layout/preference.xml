@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content">
+
+    <ListPreference
+        android:key="@string/prefRSSFeed"
+        android:defaultValue="0"
+        android:title="RSS Feed"
+        android:summary="Choose RSS Feed"
+        android:entries="@array/RSS_feeds"
+        android:entryValues="@array/RSS_feeds_value"
+        android:dialogTitle="Choose RSS Feed" />
+
+    <ListPreference
+        android:key="@string/prefMaxLoadNum"
+        android:defaultValue="75"
+        android:title="Max Load Number"
+        android:summary="Choose Max Load Number"
+        android:entries="@array/Max_load_num"
+        android:entryValues="@array/Max_load_num"
+        android:dialogTitle="Choose Max Load Number" />
+
+</PreferenceScreen>
