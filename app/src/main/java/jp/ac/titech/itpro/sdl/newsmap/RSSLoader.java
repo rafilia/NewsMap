@@ -102,6 +102,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
 
             // Search Location
             int i = 0;
+            int id= 0;
             Geocoder geocoder = new Geocoder(mMapsActivity, Locale.getDefault());
             for (Object obj : feed.getEntries()) {
                 if (isCancelled()) {
@@ -165,6 +166,10 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                     if (!addressList.isEmpty()) {
                         Address address = addressList.get(0);
                         entry_latlng = new LatLng(address.getLatitude(), address.getLongitude());
+
+                        // add entry if it has location info
+                        NewsInfo newsEntry = new NewsInfo(id++, entry_title, entry_url, entry_location, entry_date, entry_latlng, main_text);
+                        mNewsInfo.add(newsEntry);
                     } else {
                         Log.i(TAG + "/onPostEx", "cannot search Location :" + entry_location);
                     }
@@ -172,8 +177,9 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                     Log.i(TAG + "/Location", "location cannot detect");
                 }
 
-                NewsInfo newsEntry = new NewsInfo(i, entry_title, entry_url, entry_location, entry_date, entry_latlng, main_text);
-                mNewsInfo.add(newsEntry);
+                // add all entry (even if location not found)
+                //NewsInfo newsEntry = new NewsInfo(i, entry_title, entry_url, entry_location, entry_date, entry_latlng, main_text);
+                //mNewsInfo.add(newsEntry);
 
                 if (i++ == mLoadNumber) break;
             }

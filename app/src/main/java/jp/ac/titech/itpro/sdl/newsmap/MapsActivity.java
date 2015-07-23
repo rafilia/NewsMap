@@ -399,7 +399,7 @@ public class MapsActivity extends FragmentActivity {
         if(mNewsInfo.isEmpty()) return;
 
         if(currentNewsID == -1) currentNewsID=0;
-        else if(--currentNewsID < 0) currentNewsID=mNewsInfo.size();
+        else if(--currentNewsID < 0) currentNewsID=mNewsInfo.size()-1;
 
         showCurrentMarkerInfo = true;
         mMarkers.get(currentNewsID).showInfoWindow();
