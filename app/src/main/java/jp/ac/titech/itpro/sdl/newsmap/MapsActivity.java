@@ -48,9 +48,9 @@ public class MapsActivity extends FragmentActivity {
                                              "http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml"};
 
     private ArrayList<NewsInfo> mNewsInfo;
-    private int currentNewsID=-1;
+    private int currentNewsID=0;
     private ArrayList<Marker> mMarkers;
-    private Boolean showCurrentMarkerInfo = false;
+    private Boolean showCurrentMarkerInfo = true;
 
     private SharedPreferences sp;
     private ConnectivityManager cm;
@@ -83,6 +83,7 @@ public class MapsActivity extends FragmentActivity {
             public void onClick(View view) {
                 // force reload map
                 mNewsInfo =  new ArrayList<>();
+                currentNewsID = 0;
                 loadRSS();
             }
         });
@@ -349,6 +350,7 @@ public class MapsActivity extends FragmentActivity {
                 Log.i(TAG, "to be refreshed");
                 // delete current news info
                 mNewsInfo.clear();
+                currentNewsID=0;
                 loadRSS();
                 sp.edit().putBoolean("needRefresh", false).commit();
             }
@@ -356,6 +358,11 @@ public class MapsActivity extends FragmentActivity {
     }
 
     public void addMarkers(){
+        if(mNewsInfo.isEmpty()){
+            Log.i(TAG, "mNewsInfo is empty!");
+            return;
+        }
+
         for(NewsInfo entry : mNewsInfo){
             if(entry.getLatLng() != null){
                 addMarker(entry);
@@ -398,8 +405,7 @@ public class MapsActivity extends FragmentActivity {
     public void showPrevMarker(Boolean anime){
         if(mNewsInfo.isEmpty()) return;
 
-        if(currentNewsID == -1) currentNewsID=0;
-        else if(--currentNewsID < 0) currentNewsID=mNewsInfo.size()-1;
+        if(--currentNewsID < 0) currentNewsID=mNewsInfo.size()-1;
 
         showCurrentMarkerInfo = true;
         mMarkers.get(currentNewsID).showInfoWindow();
@@ -410,8 +416,7 @@ public class MapsActivity extends FragmentActivity {
     public void showNextMarker(Boolean anime){
         if(mNewsInfo.isEmpty()) return;
 
-        if(currentNewsID == -1) currentNewsID=0;
-        else if(++currentNewsID == mNewsInfo.size()) currentNewsID=0;
+        if(++currentNewsID == mNewsInfo.size()) currentNewsID=0;
 
         showCurrentMarkerInfo = true;
         mMarkers.get(currentNewsID).showInfoWindow();
