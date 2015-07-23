@@ -12,7 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.System.currentTimeMillis;
 
@@ -221,15 +222,24 @@ public class MapsActivity extends FragmentActivity {
                     @Override
                     //public View getInfoWindow(Marker marker) {
                     public View getInfoContents(Marker marker) {
-                        View view = getLayoutInflater().inflate(R.layout.info_window, null);
-                        TextView title = (TextView) view.findViewById(R.id.info_title);
-                        TextView location = (TextView) view.findViewById(R.id.info_location);
+                        //View view = getLayoutInflater().inflate(R.layout.info_window, null);
+                        //TextView title = (TextView) view.findViewById(R.id.info_title);
+                        //TextView location = (TextView) view.findViewById(R.id.info_location);
+                        //title.setText(marker.getTitle());
+                        //location.setText(mNewsInfo.get(currentNewsID).getLocation());
 
                         currentNewsID = Integer.parseInt(marker.getSnippet());
-                        title.setText(marker.getTitle());
-                        location.setText(mNewsInfo.get(currentNewsID).getLocation());
-
                         showCurrentMarkerInfo = true;
+
+                        View view = getLayoutInflater().inflate(R.layout.info_window_list, null);
+                        ListView list = (ListView) view.findViewById(R.id.info_list);
+
+                        NewsAbstList item = new NewsAbstList(marker.getTitle(), mNewsInfo.get(currentNewsID).getLocation());
+
+                        List<NewsAbstList> nList = new ArrayList<>();
+                        nList.add(item);
+                        NewsInfoListAdapter adapter = new NewsInfoListAdapter(getBaseContext(), 0, nList);
+                        list.setAdapter(adapter);
 
                         return view;
                     }
