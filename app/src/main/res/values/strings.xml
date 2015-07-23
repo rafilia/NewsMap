@@ -11,4 +11,7 @@
 
     <string name="newsDialog_look">近くを見る</string>
     <string name="newsDialog_open">ブラウザで開く</string>
+    <string name="newsDialog_prev">前のニュース</string>
+    <string name="newsDialog_next">次のニュース</string>
+
 </resources>

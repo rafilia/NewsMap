@@ -37,6 +37,9 @@ public class NewsInfoDialog extends DialogFragment {
 
         Button openButton = (Button) dialog.findViewById(R.id.newsDialog_open);
         Button lookButton = (Button) dialog.findViewById(R.id.newsDialog_look);
+        Button prevButton = (Button) dialog.findViewById(R.id.newsDialog_prev);
+        Button nextButton = (Button) dialog.findViewById(R.id.newsDialog_next);
+
 
         uri = Uri.parse(entry.getURL());
 
@@ -55,6 +58,26 @@ public class NewsInfoDialog extends DialogFragment {
                 Log.i(TAG, "look button clicked");
                 MapsActivity activity = (MapsActivity) getActivity();
                 activity.lookCloser();
+                dismiss();
+            }
+        });
+
+        prevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "prev button clicked");
+                MapsActivity activity = (MapsActivity) getActivity();
+                activity.openPrevDialog();
+                dismiss();
+            }
+        });
+
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "next button clicked");
+                MapsActivity activity = (MapsActivity) getActivity();
+                activity.openNextDialog();
                 dismiss();
             }
         });

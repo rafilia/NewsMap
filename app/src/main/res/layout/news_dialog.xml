@@ -58,6 +58,12 @@
         android:layout_gravity="center"
         >
 
+        <Button android:id="@+id/newsDialog_prev"
+            android:layout_width="300px"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@string/newsDialog_prev"
+            />
         <Button android:id="@+id/newsDialog_look"
             android:layout_width="300px"
             android:layout_height="wrap_content"
@@ -69,6 +75,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
             android:text="@string/newsDialog_open"
+            />
+        <Button android:id="@+id/newsDialog_next"
+            android:layout_width="300px"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@string/newsDialog_next"
             />
 
     </LinearLayout>

@@ -102,21 +102,21 @@ public class MapsActivity extends FragmentActivity {
         prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showPrevMarker();
+                showPrevMarker(true);
             }
         });
         nextButton = (Button) findViewById(R.id.nextButton);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showNextMarker();
+                showNextMarker(true);
             }
         });
         newestButton = (Button) findViewById(R.id.newestButton);
         newestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showNewestMarker();
+                showNewestMarker(true);
             }
         });
 
@@ -395,7 +395,7 @@ public class MapsActivity extends FragmentActivity {
     }
 
     // move to prev/next/newest marker and show info window
-    public void showPrevMarker(){
+    public void showPrevMarker(Boolean anime){
         if(mNewsInfo.isEmpty()) return;
 
         if(currentNewsID == -1) currentNewsID=0;
@@ -403,9 +403,11 @@ public class MapsActivity extends FragmentActivity {
 
         showCurrentMarkerInfo = true;
         mMarkers.get(currentNewsID).showInfoWindow();
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+
+        if(anime) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+        else mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
     }
-    public void showNextMarker(){
+    public void showNextMarker(Boolean anime){
         if(mNewsInfo.isEmpty()) return;
 
         if(currentNewsID == -1) currentNewsID=0;
@@ -413,15 +415,18 @@ public class MapsActivity extends FragmentActivity {
 
         showCurrentMarkerInfo = true;
         mMarkers.get(currentNewsID).showInfoWindow();
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+        if(anime) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+        else mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
     }
-    public void showNewestMarker(){
+    public void showNewestMarker(Boolean anime){
         if(mNewsInfo.isEmpty()) return;
 
         currentNewsID=0;
         showCurrentMarkerInfo = true;
         mMarkers.get(currentNewsID).showInfoWindow();
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+
+        if(anime) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+        else mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
     }
 
     public void lookCloser(){
@@ -434,9 +439,21 @@ public class MapsActivity extends FragmentActivity {
         backButtonVisibility = View.VISIBLE;
     }
 
-    public void openNewsDialog(){
+    public void openNextDialog(){
+        showNextMarker(false);
+
         Bundle bundle = new Bundle();
-        bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID+1));
+        bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID));
+
+        NewsInfoDialog nid = new NewsInfoDialog();
+        nid.setArguments(bundle);
+        nid.show(getFragmentManager(), "newsInfoDialog");
+    }
+    public void openPrevDialog(){
+        showPrevMarker(false);
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID));
 
         NewsInfoDialog nid = new NewsInfoDialog();
         nid.setArguments(bundle);
