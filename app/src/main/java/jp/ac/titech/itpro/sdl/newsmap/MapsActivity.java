@@ -68,7 +68,7 @@ public class MapsActivity extends FragmentActivity {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
-        Button centerButton, reloadButton, backButton;
+        Button centerButton, reloadButton, backButton, prevButton, newestButton, nextButton;
         centerButton = (Button) findViewById(R.id.centerButton);
         centerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +95,28 @@ public class MapsActivity extends FragmentActivity {
                 b.setVisibility(View.INVISIBLE);
                 backButtonVisibility = View.INVISIBLE;
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(backLatLng, backZoomLevel));
+            }
+        });
+
+        prevButton = (Button) findViewById(R.id.prevButton);
+        prevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPrevMarker();
+            }
+        });
+        nextButton = (Button) findViewById(R.id.nextButton);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showNextMarker();
+            }
+        });
+        newestButton = (Button) findViewById(R.id.newestButton);
+        newestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showNewestMarker();
             }
         });
 
@@ -264,6 +286,7 @@ public class MapsActivity extends FragmentActivity {
                     }
                 });
 
+
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
@@ -338,7 +361,6 @@ public class MapsActivity extends FragmentActivity {
                 addMarker(entry);
             }
         }
-        moveCameraToPrev();
 
         if(showCurrentMarkerInfo){
             mMarkers.get(currentNewsID).showInfoWindow();
@@ -372,8 +394,34 @@ public class MapsActivity extends FragmentActivity {
         mMarkers.add(m);
     }
 
-    public void moveCameraToPrev(){
-        //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(prevLatLng, prevZoomLevel));
+    // move to prev/next/newest marker and show info window
+    public void showPrevMarker(){
+        if(mNewsInfo.isEmpty()) return;
+
+        if(currentNewsID == -1) currentNewsID=0;
+        else if(--currentNewsID < 0) currentNewsID=mNewsInfo.size();
+
+        showCurrentMarkerInfo = true;
+        mMarkers.get(currentNewsID).showInfoWindow();
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+    }
+    public void showNextMarker(){
+        if(mNewsInfo.isEmpty()) return;
+
+        if(currentNewsID == -1) currentNewsID=0;
+        else if(++currentNewsID == mNewsInfo.size()) currentNewsID=0;
+
+        showCurrentMarkerInfo = true;
+        mMarkers.get(currentNewsID).showInfoWindow();
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
+    }
+    public void showNewestMarker(){
+        if(mNewsInfo.isEmpty()) return;
+
+        currentNewsID=0;
+        showCurrentMarkerInfo = true;
+        mMarkers.get(currentNewsID).showInfoWindow();
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mNewsInfo.get(currentNewsID).getLatLng(), mMap.getCameraPosition().zoom));
     }
 
     public void lookCloser(){
@@ -384,5 +432,14 @@ public class MapsActivity extends FragmentActivity {
         Button b = (Button) findViewById(R.id.backButton);
         b.setVisibility(View.VISIBLE);
         backButtonVisibility = View.VISIBLE;
+    }
+
+    public void openNewsDialog(){
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID+1));
+
+        NewsInfoDialog nid = new NewsInfoDialog();
+        nid.setArguments(bundle);
+        nid.show(getFragmentManager(), "newsInfoDialog");
     }
 }
