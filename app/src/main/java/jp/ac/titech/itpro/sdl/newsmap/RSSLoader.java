@@ -64,7 +64,8 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
     protected void onPreExecute() {
         mProgressDialog = new ProgressDialog(mMapsActivity);
         mProgressDialog.setMessage("Now Loading...");
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        //mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
                 new DialogInterface.OnClickListener() {
                     @Override

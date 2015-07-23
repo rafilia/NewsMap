@@ -444,6 +444,7 @@ public class MapsActivity extends FragmentActivity {
         backButtonVisibility = View.VISIBLE;
     }
 
+    // show next/prev dialog
     public void openNextDialog(){
         showNextMarker(false);
 
