@@ -222,12 +222,6 @@ public class MapsActivity extends FragmentActivity {
                     @Override
                     //public View getInfoWindow(Marker marker) {
                     public View getInfoContents(Marker marker) {
-                        //View view = getLayoutInflater().inflate(R.layout.info_window, null);
-                        //TextView title = (TextView) view.findViewById(R.id.info_title);
-                        //TextView location = (TextView) view.findViewById(R.id.info_location);
-                        //title.setText(marker.getTitle());
-                        //location.setText(mNewsInfo.get(currentNewsID).getLocation());
-
                         currentNewsID = Integer.parseInt(marker.getSnippet());
                         showCurrentMarkerInfo = true;
 
@@ -242,14 +236,30 @@ public class MapsActivity extends FragmentActivity {
                         List<NewsAbstList> nList = new ArrayList<>();
                         nList.add(item);
                         NewsInfoListAdapter adapter = new NewsInfoListAdapter(getBaseContext(), 0, nList);
+
                         list.setAdapter(adapter);
+
+                        // NOT work (can't get event)
+//                        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                            @Override
+//                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                                Log.i(TAG+"/marker", "news list item clicked");
+//                                // show info window dialog
+//                                Bundle bundle = new Bundle();
+//                                bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID));
+//
+//                                NewsInfoDialog nid = new NewsInfoDialog();
+//                                nid.setArguments(bundle);
+//                                nid.show(getFragmentManager(), "newsInfoDialog");
+//                            }
+//                        });
 
                         return view;
                     }
 
                     @Override
                     public View getInfoWindow(Marker marker) {
-                        //public View getInfoContents(Marker marker) {
+                    //public View getInfoContents(Marker marker) {
                         return null;
                     }
                 });
