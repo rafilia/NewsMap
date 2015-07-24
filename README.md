@@ -1,6 +1,6 @@
 NewsMap
 ========
-Android app which pins Japanese news on the Google Map. 
+Android app which pins Japanese news on Google Map. 
 
 ニューステキストから位置情報を抽出し、グーグルマップ上にマーカーを立てるアンドロイドアプリです。
 現在は NHK または yahoo の社会ニュースを取得しています。
