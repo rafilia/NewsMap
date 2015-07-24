@@ -237,6 +237,8 @@ public class MapsActivity extends FragmentActivity {
                 // set MAP configuration
                 mMap.getUiSettings().setZoomControlsEnabled(true);
                 mMap.getUiSettings().setRotateGesturesEnabled(false);
+                mMap.setMyLocationEnabled(true);
+                mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
                 mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
