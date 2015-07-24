@@ -41,13 +41,18 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
     private SharedPreferences sp;
 
     // for location search
-    private final static String address_re = "((北海道|東京都|(京都|大阪)府|(鹿児島|神奈川|和歌山)県|.{2}県).{1,8}(村|町|市|区))";
+    private final static String address_re = "((北海道|東京都*|(京都|大阪)府*|(鹿児島|神奈川|和歌山)県*|.{2}県).{1,8}(村|町|市|区))";
     private final static Pattern address_pattern = Pattern.compile(address_re);
 
     private final static String pref_re = "(北海道|東京都*|(京都|大阪)府*|" +
             "(青森|岩手|宮城|秋田|福島|)" + "茨城|栃木|群馬|神奈川|千葉|埼玉|" +
             "新潟|富山|石川|福井|山梨|長野|岐阜|静岡|愛知|" + "三重|滋賀|兵庫|奈良|和歌山|" + "鳥取|島根|広島|岡山|山口|" +
             "徳島|高知|愛媛|香川|" + "福岡|佐賀|長崎|熊本|宮崎|大分|鹿児島|沖縄)県*";
+    private final static Pattern pref_pattern = Pattern.compile(pref_re);
+
+    private final static String district_re = "(関東|関西|中国|近畿|九州|北海道|関東甲信越|北陸|東海|奄美)地方";
+    private final static Pattern district_pattern = Pattern.compile(district_re);
+
     private final static String video_re = "videonews";
     private final static Pattern videonews_pattern = Pattern.compile(video_re);
 
@@ -160,11 +165,25 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                 Log.i(TAG + "/main text", main_text);
 
                 // find location info
-                Matcher m = address_pattern.matcher(main_text);
                 String entry_location = "";
                 LatLng entry_latlng = new LatLng(0,0);
-                if (m.find()) {
-                    entry_location = m.group();
+
+                // extract location text from news text
+                Matcher m = address_pattern.matcher(main_text);
+                Matcher m2 = pref_pattern.matcher(main_text);
+                Matcher m3 = district_pattern.matcher(main_text);
+
+                if(m.find()){
+                    entry_location= m.group();
+                } else if (m2.find()){
+                    entry_location= m2.group();
+                } else if(m3.find()){
+                    entry_location= m3.group();
+                }
+
+                if(!entry_location.isEmpty()){
+                //if (m.find()) {
+                    //entry_location = m.group();
                     Log.i(TAG + "/Location", entry_location);
 
                     List<Address> addressList = geocoder.getFromLocationName(entry_location, 1);
