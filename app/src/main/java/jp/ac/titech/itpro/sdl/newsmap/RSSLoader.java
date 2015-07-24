@@ -47,7 +47,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
     private SharedPreferences sp;
 
     // for location search
-    private final static String address_re = "((北海道|東京都*|(京都|大阪)府*|(鹿児島|神奈川|和歌山)県*|.{2}県).{1,8}(村|町|市|区))";
+    private final static String address_re = "((北海道|東京都*|(京都|大阪)府*|(鹿児島|神奈川|和歌山)県*|.{2}県).{1,8}(村|町|市|区|島))";
     private final static Pattern address_pattern = Pattern.compile(address_re);
 
     private final static String pref_re = "(北海道|東京都*|(京都|大阪)府*|" +
@@ -56,7 +56,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
             "徳島|高知|愛媛|香川|" + "福岡|佐賀|長崎|熊本|宮崎|大分|鹿児島|沖縄)県*";
     private final static Pattern pref_pattern = Pattern.compile(pref_re);
 
-    private final static String district_re = "(関東|関西|中国|近畿|九州|北海道|関東甲信越|北陸|東海|奄美)地方";
+    private final static String district_re = "((関東|関西|中国|近畿|九州|北海道|関東甲信越|北陸|東海|奄美)地方|北方領土)";
     private final static Pattern district_pattern = Pattern.compile(district_re);
 
     private final static String video_re = "videonews";
