@@ -24,16 +24,18 @@
         android:text="@string/reload_button"
         android:layout_gravity="bottom"
         android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@+id/centerButton" />
+        android:layout_toEndOf="@+id/centerButton"
+        />
 
     <Button
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="元に戻る"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
         android:visibility="invisible"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/nextButton"
+        android:layout_marginTop="7dp"
         />
 
     <Button
