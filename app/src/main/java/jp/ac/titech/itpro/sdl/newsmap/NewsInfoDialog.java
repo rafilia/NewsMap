@@ -15,20 +15,21 @@ import java.util.ArrayList;
 /**
  * Created by tm on 2015/07/22.
  */
+// detailed news info dialog
 public class NewsInfoDialog extends DialogFragment {
     private final static String TAG = "NewsInfoDialog";
     private Uri uri;
 
     // number of entry at this location
     private int entryNum;
+    // current Local ID which displays information
     private int currentLocalNewsID;
     private ArrayList<NewsInfo> nList;
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        //NewsInfo entry = getArguments().getParcelable("newsEntry");
-
         currentLocalNewsID = 0;
         entryNum = getArguments().getInt("newsEntryNum");
+        // get news entries
         nList = new ArrayList<>();
         for(int i = 0; i < entryNum; i++){
             NewsInfo entry = getArguments().getParcelable("newsEntry" + i);
@@ -50,7 +51,6 @@ public class NewsInfoDialog extends DialogFragment {
         urlText.setText(nList.get(currentLocalNewsID).getURL());
         uri = Uri.parse(nList.get(currentLocalNewsID).getURL());
 
-
         Button openButton = (Button) dialog.findViewById(R.id.newsDialog_open);
         Button lookButton = (Button) dialog.findViewById(R.id.newsDialog_look);
         Button prevButton = (Button) dialog.findViewById(R.id.newsDialog_prev);
@@ -58,10 +58,12 @@ public class NewsInfoDialog extends DialogFragment {
         Button oldButton = (Button) dialog.findViewById(R.id.newsDialog_old);
         Button newButton = (Button) dialog.findViewById(R.id.newsDialog_new);
 
+        // if there are more than two entries, enable oldButton
         if(entryNum != 1){
             oldButton.setEnabled(true);
         }
 
+        // open URI with browser
         openButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,6 +73,7 @@ public class NewsInfoDialog extends DialogFragment {
             }
         });
 
+        // zoom to the marker position
         lookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,6 +84,7 @@ public class NewsInfoDialog extends DialogFragment {
             }
         });
 
+        // show prev News Dailog
         prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -91,6 +95,7 @@ public class NewsInfoDialog extends DialogFragment {
             }
         });
 
+        // show next News Dialog
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,6 +106,7 @@ public class NewsInfoDialog extends DialogFragment {
             }
         });
 
+        // show older news information at this same location
         oldButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -117,6 +123,7 @@ public class NewsInfoDialog extends DialogFragment {
             }
         });
 
+        // show newer news information at this same location
         newButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

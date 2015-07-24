@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * Created by tm on 2015/07/23.
  */
+// ListAdapter for custom Marker Infowindow
 public class NewsInfoListAdapter extends ArrayAdapter<NewsAbstList> {
     LayoutInflater layoutInflater;
 

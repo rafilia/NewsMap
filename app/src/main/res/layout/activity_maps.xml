@@ -31,7 +31,7 @@
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="元に戻る"
+        android:text="@string/back_button"
         android:visibility="invisible"
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/nextButton"
@@ -41,7 +41,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="前"
+        android:text="@string/prev_button"
         android:id="@+id/prevButton"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
@@ -49,7 +49,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="新着"
+        android:text="@string/newest_button"
         android:id="@+id/newestButton"
         android:layout_alignParentBottom="true"
         android:layout_toEndOf="@+id/prevButton" />
@@ -57,7 +57,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="次"
+        android:text="@string/next_button"
         android:id="@+id/nextButton"
         android:layout_alignParentBottom="true"
         android:layout_toEndOf="@+id/newestButton" />

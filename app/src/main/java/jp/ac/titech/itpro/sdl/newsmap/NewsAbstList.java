@@ -3,6 +3,8 @@ package jp.ac.titech.itpro.sdl.newsmap;
 /**
  * Created by tm on 2015/07/23.
  */
+// for NewsInfoListAdapter
+// news title & issue date
 public class NewsAbstList {
     String title;
     String date;

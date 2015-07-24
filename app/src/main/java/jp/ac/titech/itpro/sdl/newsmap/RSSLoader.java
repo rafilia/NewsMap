@@ -30,6 +30,12 @@ import java.util.regex.Pattern;
 /**
  * Created by tm on 2015/07/19.
  */
+// in onPreExecute ... show dialog
+// in DoInBackground
+//  1. if mNewsInfo is empty load RSS (else skip load)
+//  2. for each RSS entry search location info (with regex)
+//  3. if find location, calc LatLang with Geocoder API and add to mNewsInfo
+// in onPostExecute ... put markers on the map
 public class RSSLoader extends AsyncTask<String, Integer, Void> {
     private final static String TAG = "RSSLoader";
     private MapsActivity mMapsActivity;
@@ -108,7 +114,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
             URL feedurl = new URL(params[mFeedNumber]);
             SyndFeedInput input = new SyndFeedInput();
             SyndFeed feed = input.build(new XmlReader(feedurl));
-            mProgressDialog.setProgress(20);
+            //mProgressDialog.setProgress(20);
 
             // Search Location
             int i = 0;
@@ -118,7 +124,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                 if (isCancelled()) {
                     return null;
                 }
-                mProgressDialog.setProgress(i + 20);
+                //mProgressDialog.setProgress(i + 20);
 
                 // Get RSS entry info
                 SyndEntry entry = (SyndEntry) obj;
@@ -140,7 +146,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
 
                 // GET main article
                 String main_text = "";
-                // yahoo
+                // for yahoo
                 if (mFeedNumber == Consts.FEED_YAHOO) {
                     // GET 'Detailed Link'
                     org.jsoup.nodes.Document doc = Jsoup.connect(entry_url).get();
@@ -158,7 +164,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                         // textnews
                         main_text = doc2.select("p.ynDetailText").first().text();
                     }
-                    // nhk
+                    // for nhk
                 } else if (mFeedNumber == Consts.FEED_NHK) {
                     main_text = entry.getDescription().getValue();
                 }
@@ -182,8 +188,6 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                 }
 
                 if(!entry_location.isEmpty()){
-                //if (m.find()) {
-                    //entry_location = m.group();
                     Log.i(TAG + "/Location", entry_location);
 
                     List<Address> addressList = geocoder.getFromLocationName(entry_location, 1);
@@ -201,17 +205,12 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                     Log.i(TAG + "/Location", "location cannot detect");
                 }
 
-                // add all entry (even if location not found)
-                //NewsInfo newsEntry = new NewsInfo(i, entry_title, entry_url, entry_location, entry_date, entry_latlng, main_text);
-                //mNewsInfo.add(newsEntry);
-
                 if (i++ == mLoadNumber) break;
             }
         } catch  (Exception e) {
             e.printStackTrace();
         }
 
-        //Collections.sort(mNewsInfo, new NewsInfoComparator());
         mMapsActivity.setNewsInfo(mNewsInfo);
         return null;
     }

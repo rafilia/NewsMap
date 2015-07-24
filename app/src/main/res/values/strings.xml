@@ -8,6 +8,10 @@
 
     <string name="center_button">Center</string>
     <string name="reload_button">Reload</string>
+    <string name="back_button">元に戻る</string>
+    <string name="prev_button">前</string>
+    <string name="next_button">次</string>
+    <string name="newest_button">新着</string>
 
     <string name="newsDialog_look">近くを見る</string>
     <string name="newsDialog_open">ブラウザで開く</string>

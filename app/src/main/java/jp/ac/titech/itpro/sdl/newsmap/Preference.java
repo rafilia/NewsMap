@@ -10,6 +10,9 @@ import android.util.Log;
 /**
  * Created by tm on 2015/07/21.
  */
+// preference activity
+// RSS Feed ... 0:NHK, 1:yahoo
+// max RSS load num ... 25/50/75/100
 public class Preference extends Activity {
     private final static String TAG = "Preference";
     private myPrefFragment mFragment;
@@ -39,7 +42,7 @@ public class Preference extends Activity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-            // change summary
+            // change summary dynamically
             if(s.equals("prefRSSFeed")) {
                 ListPreference RSSFeedList = (ListPreference) findPreference ("prefRSSFeed");
                 RSSFeedList.setSummary(getResources().getStringArray(R.array.RSS_feeds)[Integer.parseInt(RSSFeedList.getValue())]);
