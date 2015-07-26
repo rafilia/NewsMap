@@ -157,6 +157,11 @@ public class MapsActivity extends FragmentActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.i(TAG, "onSavedInstanceState");
         super.onSaveInstanceState(outState);
@@ -493,4 +498,5 @@ public class MapsActivity extends FragmentActivity {
         showPrevMarker(false);
         showNewsInfoDialog();
     }
+
 }

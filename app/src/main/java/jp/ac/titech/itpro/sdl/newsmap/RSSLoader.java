@@ -47,7 +47,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
     private SharedPreferences sp;
 
     // for location search
-    private final static String address_re = "((北海道|東京都*|(京都|大阪)府*|(鹿児島|神奈川|和歌山)県*|.{2}県).{1,8}(村|町|市|区|島))";
+    private final static String address_re = "((北海道|東京都*|(京都|大阪)府*|(鹿児島|神奈川|和歌山)県*|.{2}県).{1,6}(村|町|市|区|島|山|川))";
     private final static Pattern address_pattern = Pattern.compile(address_re);
 
     private final static String pref_re = "(北海道|東京都*|(京都|大阪)府*|" +
@@ -166,9 +166,13 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                     }
                     // for nhk
                 } else if (mFeedNumber == Consts.FEED_NHK) {
-                    main_text = entry.getDescription().getValue();
+                    //main_text = entry.getDescription().getValue();
+
+                    // to get detailed main text
+                    org.jsoup.nodes.Document doc = Jsoup.connect(entry_url).get();
+                    main_text = doc.getElementById("news_textbody").text() + doc.getElementById("news_textmore").text();
                 }
-                Log.i(TAG + "/main text", main_text);
+                Log.i(TAG + "/main_text", main_text);
 
                 // find location info
                 String entry_location = "";
