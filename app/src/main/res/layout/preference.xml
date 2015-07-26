@@ -22,4 +22,14 @@
         android:entryValues="@array/Max_load_num"
         android:dialogTitle="Choose Max Load Number" />
 
+    <ListPreference
+        android:key="prefMode"
+        android:defaultValue="Text"
+        android:title="View Mode"
+        android:summary="Choose View Mode"
+        android:entries="@array/View_mode"
+        android:entryValues="@array/View_mode"
+        android:dialogTitle="Choose View mode"
+        />
+
 </PreferenceScreen>

@@ -44,7 +44,10 @@
             android:text="＜"
             />
 
-<!--        <ScrollView android:id="@+id/newsDialog_descView"
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <ScrollView android:id="@+id/newsDialog_descView"
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_margin="15px"
@@ -55,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:text="description"
                 />
-        </ScrollView>-->
+        </ScrollView>
 
         <WebView android:id="@+id/newsDialog_webview"
             android:layout_width="match_parent"
@@ -63,6 +66,8 @@
             android:layout_margin="15px"
             android:layout_weight="0.8">
             </WebView>
+
+        </FrameLayout>
 
         <Button android:id="@+id/newsDialog_old"
             android:layout_width="40dp"

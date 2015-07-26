@@ -38,6 +38,9 @@ public class Preference extends Activity {
 
             ListPreference LoadMaxValue = (ListPreference) findPreference("prefMaxLoadNum");
             LoadMaxValue.setSummary(LoadMaxValue.getValue());
+
+            ListPreference ModeList = (ListPreference) findPreference("prefMode");
+            ModeList.setSummary(ModeList.getValue());
         }
 
         @Override
@@ -47,14 +50,22 @@ public class Preference extends Activity {
                 ListPreference RSSFeedList = (ListPreference) findPreference ("prefRSSFeed");
                 RSSFeedList.setSummary(getResources().getStringArray(R.array.RSS_feeds)[Integer.parseInt(RSSFeedList.getValue())]);
                 Log.i(TAG + "/changed", "set rss summary");
+
+                // to be reloaded RSS after return to main activity
+                sharedPreferences.edit().putBoolean("needRefresh", true).commit();
             } else if(s.equals("prefMaxLoadNum")){
                 ListPreference LoadMaxValue = (ListPreference) findPreference("prefMaxLoadNum");
                 LoadMaxValue.setSummary(LoadMaxValue.getValue());
                 Log.i(TAG + "/changed", "set load max value summary");
+
+                // to be reloaded RSS after return to main activity
+                sharedPreferences.edit().putBoolean("needRefresh", true).commit();
+            } else if(s.equals("prefMode")){
+                ListPreference ModeList = (ListPreference) findPreference("prefMode");
+                ModeList.setSummary(ModeList.getValue());
+                Log.i(TAG + "/changed", "set View Mode");
             }
 
-            // to be reloaded RSS after return to main activity
-            sharedPreferences.edit().putBoolean("needRefresh", true).commit();
         }
 
         @Override

@@ -3,8 +3,10 @@ package jp.ac.titech.itpro.sdl.newsmap;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
@@ -22,6 +24,8 @@ public class NewsInfoDialog extends DialogFragment {
     private final static String TAG = "NewsInfoDialog";
     private Uri uri;
 
+    SharedPreferences sp;
+    Boolean textMode;
     // number of entry at this location
     private int entryNum;
     // current Local ID which displays information
@@ -38,32 +42,41 @@ public class NewsInfoDialog extends DialogFragment {
             nList.add(entry);
         }
 
+        sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        textMode = ((sp.getString("prefMode", "Text")).equals(getResources().getStringArray(R.array.View_mode)[0]));
+
         Dialog dialog = new Dialog(getActivity());
         dialog.setContentView(R.layout.news_dialog);
 
         TextView locationText = (TextView) dialog.findViewById(R.id.newsDialog_location);
         TextView issueDateText = (TextView) dialog.findViewById(R.id.newsDialog_issueDate);
         TextView urlText = (TextView) dialog.findViewById(R.id.newsDialog_url);
-        //TextView descText = (TextView) dialog.findViewById(R.id.newsDialog_descText);
+
+        TextView descText = (TextView) dialog.findViewById(R.id.newsDialog_descText);
         WebView webView = (WebView) dialog.findViewById(R.id.newsDialog_webview);
-        webView.setWebViewClient(new WebViewClient(){
-                                     // disable URL click
-                                     //@Override
-                                     //public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                                     //    return true;
-                                     //}
-                                 }
-        );
-        webView.getSettings().setBuiltInZoomControls(true);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setLoadWithOverviewMode(true);
-        webView.getSettings().setUseWideViewPort(true);
+        if(textMode) {
+            webView.setVisibility(View.GONE);
+            descText.setText(nList.get(currentLocalNewsID).getContents());
+       } else {
+            descText.setVisibility(View.GONE);
+            webView.setWebViewClient(new WebViewClient() {
+                                         // disable URL click
+                                         //@Override
+                                         //public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                                         //    return true;
+                                         //}
+                                     }
+            );
+            webView.getSettings().setBuiltInZoomControls(true);
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.getSettings().setLoadWithOverviewMode(true);
+            webView.getSettings().setUseWideViewPort(true);
+            webView.loadUrl(nList.get(currentLocalNewsID).getURL());
+        }
 
         dialog.setTitle(nList.get(currentLocalNewsID).getTitle());
         locationText.setText(nList.get(currentLocalNewsID).getLocation());
         issueDateText.setText(nList.get(currentLocalNewsID).getIssueDate().toString());
-        //descText.setText(nList.get(currentLocalNewsID).getContents());
-        webView.loadUrl(nList.get(currentLocalNewsID).getURL());
         urlText.setText(nList.get(currentLocalNewsID).getURL());
         uri = Uri.parse(nList.get(currentLocalNewsID).getURL());
 
@@ -162,16 +175,21 @@ public class NewsInfoDialog extends DialogFragment {
     public void setDialogInfo(){
         TextView locationText = (TextView) getDialog().findViewById(R.id.newsDialog_location);
         TextView issueDateText = (TextView) getDialog().findViewById(R.id.newsDialog_issueDate);
-        //TextView descText = (TextView) getDialog().findViewById(R.id.newsDialog_descText);
         TextView urlText = (TextView) getDialog().findViewById(R.id.newsDialog_url);
-        WebView webView = (WebView) getDialog().findViewById(R.id.newsDialog_webview);
 
+        TextView descText = (TextView) getDialog().findViewById(R.id.newsDialog_descText);
+        WebView webView = (WebView) getDialog().findViewById(R.id.newsDialog_webview);
+        if(textMode) {
+            //webView.setVisibility(View.GONE);
+            descText.setText(nList.get(currentLocalNewsID).getContents());
+        } else {
+            //descText.setVisibility(View.GONE);
+            webView.loadUrl(nList.get(currentLocalNewsID).getURL());
+        }
 
         getDialog().setTitle(nList.get(currentLocalNewsID).getTitle());
         locationText.setText(nList.get(currentLocalNewsID).getLocation());
         issueDateText.setText(nList.get(currentLocalNewsID).getIssueDate().toString());
-        //descText.setText(nList.get(currentLocalNewsID).getContents());
-        webView.loadUrl(nList.get(currentLocalNewsID).getURL());
         urlText.setText(nList.get(currentLocalNewsID).getURL());
         uri = Uri.parse(nList.get(currentLocalNewsID).getURL());
     }

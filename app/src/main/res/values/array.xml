@@ -15,4 +15,9 @@
         <item>75</item>
         <item>100</item>
     </string-array>
+
+    <string-array name="View_mode">
+        <item>Text</item>
+        <item>Webview</item>
+    </string-array>
 </resources>
