@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -41,13 +43,27 @@ public class NewsInfoDialog extends DialogFragment {
 
         TextView locationText = (TextView) dialog.findViewById(R.id.newsDialog_location);
         TextView issueDateText = (TextView) dialog.findViewById(R.id.newsDialog_issueDate);
-        TextView descText = (TextView) dialog.findViewById(R.id.newsDialog_descText);
         TextView urlText = (TextView) dialog.findViewById(R.id.newsDialog_url);
+        //TextView descText = (TextView) dialog.findViewById(R.id.newsDialog_descText);
+        WebView webView = (WebView) dialog.findViewById(R.id.newsDialog_webview);
+        webView.setWebViewClient(new WebViewClient(){
+                                     // disable URL click
+                                     //@Override
+                                     //public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                                     //    return true;
+                                     //}
+                                 }
+        );
+        webView.getSettings().setBuiltInZoomControls(true);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setLoadWithOverviewMode(true);
+        webView.getSettings().setUseWideViewPort(true);
 
         dialog.setTitle(nList.get(currentLocalNewsID).getTitle());
         locationText.setText(nList.get(currentLocalNewsID).getLocation());
         issueDateText.setText(nList.get(currentLocalNewsID).getIssueDate().toString());
-        descText.setText(nList.get(currentLocalNewsID).getContents());
+        //descText.setText(nList.get(currentLocalNewsID).getContents());
+        webView.loadUrl(nList.get(currentLocalNewsID).getURL());
         urlText.setText(nList.get(currentLocalNewsID).getURL());
         uri = Uri.parse(nList.get(currentLocalNewsID).getURL());
 
@@ -146,14 +162,18 @@ public class NewsInfoDialog extends DialogFragment {
     public void setDialogInfo(){
         TextView locationText = (TextView) getDialog().findViewById(R.id.newsDialog_location);
         TextView issueDateText = (TextView) getDialog().findViewById(R.id.newsDialog_issueDate);
-        TextView descText = (TextView) getDialog().findViewById(R.id.newsDialog_descText);
+        //TextView descText = (TextView) getDialog().findViewById(R.id.newsDialog_descText);
         TextView urlText = (TextView) getDialog().findViewById(R.id.newsDialog_url);
+        WebView webView = (WebView) getDialog().findViewById(R.id.newsDialog_webview);
+
 
         getDialog().setTitle(nList.get(currentLocalNewsID).getTitle());
         locationText.setText(nList.get(currentLocalNewsID).getLocation());
         issueDateText.setText(nList.get(currentLocalNewsID).getIssueDate().toString());
-        descText.setText(nList.get(currentLocalNewsID).getContents());
+        //descText.setText(nList.get(currentLocalNewsID).getContents());
+        webView.loadUrl(nList.get(currentLocalNewsID).getURL());
         urlText.setText(nList.get(currentLocalNewsID).getURL());
         uri = Uri.parse(nList.get(currentLocalNewsID).getURL());
     }
+
 }
