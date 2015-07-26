@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -31,6 +32,11 @@ public class NewsInfoDialog extends DialogFragment {
     // current Local ID which displays information
     private int currentLocalNewsID;
     private ArrayList<NewsInfo> nList;
+
+    private TextView descText;
+    private View mProgressBar;
+    private Boolean mLoadingError = false;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         currentLocalNewsID = 0;
@@ -52,14 +58,38 @@ public class NewsInfoDialog extends DialogFragment {
         TextView issueDateText = (TextView) dialog.findViewById(R.id.newsDialog_issueDate);
         TextView urlText = (TextView) dialog.findViewById(R.id.newsDialog_url);
 
-        TextView descText = (TextView) dialog.findViewById(R.id.newsDialog_descText);
+        descText = (TextView) dialog.findViewById(R.id.newsDialog_descText);
         WebView webView = (WebView) dialog.findViewById(R.id.newsDialog_webview);
+        mProgressBar = (View) dialog.findViewById(R.id.newsDialog_progress);
         if(textMode) {
             webView.setVisibility(View.GONE);
             descText.setText(nList.get(currentLocalNewsID).getContents());
        } else {
             descText.setVisibility(View.GONE);
             webView.setWebViewClient(new WebViewClient() {
+                                         @Override
+                                         public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                                             super.onPageStarted(view, url, favicon);
+                                             mProgressBar.setVisibility(View.VISIBLE);
+                                         }
+
+                                         @Override
+                                         public void onPageFinished(WebView view, String url) {
+                                             super.onPageFinished(view, url);
+                                             if(mLoadingError){
+                                                 descText.setVisibility(View.VISIBLE);
+                                                 descText.setText("web page load error\n\n" + nList.get(currentLocalNewsID).getContents());
+                                             } else {
+                                                 mProgressBar.setVisibility(View.GONE);
+                                             }
+                                         }
+
+                                         @Override
+                                         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                                             super.onReceivedError(view, errorCode, description, failingUrl);
+                                             mLoadingError = true;
+                                         }
+
                                          // disable URL click
                                          //@Override
                                          //public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -86,6 +116,8 @@ public class NewsInfoDialog extends DialogFragment {
         Button nextButton = (Button) dialog.findViewById(R.id.newsDialog_next);
         Button oldButton = (Button) dialog.findViewById(R.id.newsDialog_old);
         Button newButton = (Button) dialog.findViewById(R.id.newsDialog_new);
+
+
 
         // if there are more than two entries, enable oldButton
         if(entryNum != 1){
