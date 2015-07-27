@@ -25,6 +25,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -130,9 +132,14 @@ public class MapsActivity extends FragmentActivity {
             }
         });
 
+        // load news info data
+        Gson gson = new Gson();
+        mNewsInfo = gson.fromJson(sp.getString("mNewsInfo",""), new TypeToken<ArrayList<NewsInfo>>(){}.getType());
         if (mNewsInfo == null) {
             mNewsInfo = new ArrayList<>();
         }
+
+
         mMarkers = new ArrayList<>();
         mLatLngList = new ArrayList<>();
         mNewsAtSameLocation = new ArrayList<>();
@@ -160,6 +167,10 @@ public class MapsActivity extends FragmentActivity {
 
     @Override
     protected void onStop() {
+        Gson gson = new Gson();
+        Log.i(TAG+"/onStop", gson.toJson(mNewsInfo));
+        // save news info data to shared preferences
+        sp.edit().putString("mNewsInfo", gson.toJson(mNewsInfo)).commit();
         super.onStop();
     }
 
