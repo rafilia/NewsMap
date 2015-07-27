@@ -219,6 +219,8 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
             e.printStackTrace();
         }
 
+        Long lastUpdate = System.currentTimeMillis();
+        sp.edit().putLong("lastUpdate", lastUpdate).commit();
         mMapsActivity.setNewsInfo(mNewsInfo);
         return null;
     }

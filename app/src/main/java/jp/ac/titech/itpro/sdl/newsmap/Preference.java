@@ -41,6 +41,9 @@ public class Preference extends Activity {
 
             ListPreference ModeList = (ListPreference) findPreference("prefMode");
             ModeList.setSummary(ModeList.getValue());
+
+            ListPreference UpdateList = (ListPreference) findPreference("prefUpdate");
+            UpdateList.setSummary(getResources().getStringArray(R.array.Update_mode)[UpdateList.findIndexOfValue(UpdateList.getValue())]);
         }
 
         @Override
@@ -64,6 +67,9 @@ public class Preference extends Activity {
                 ListPreference ModeList = (ListPreference) findPreference("prefMode");
                 ModeList.setSummary(ModeList.getValue());
                 Log.i(TAG + "/changed", "set View Mode");
+            } else if(s.equals("prefUpdate")){
+                ListPreference UpdateList = (ListPreference) findPreference("prefUpdate");
+                UpdateList.setSummary(getResources().getStringArray(R.array.Update_mode)[UpdateList.findIndexOfValue(UpdateList.getValue())]);
             }
 
         }

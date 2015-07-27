@@ -20,4 +20,19 @@
         <item>Text</item>
         <item>Webview</item>
     </string-array>
+
+    <string-array name="Update_mode">
+        <item>None</item>
+        <item>3h</item>
+        <item>6h</item>
+        <item>12h</item>
+        <item>24h</item>
+    </string-array>
+    <string-array name="Update_mode_value">
+        <item>0</item>
+        <item>3</item>
+        <item>6</item>
+        <item>12</item>
+        <item>24</item>
+    </string-array>
 </resources>
