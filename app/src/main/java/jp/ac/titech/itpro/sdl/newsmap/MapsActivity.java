@@ -36,7 +36,7 @@ public class MapsActivity extends FragmentActivity {
     private final static String TAG = "MapsActivity";
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    // initial location
+    // initial location (can see JAPAN)
     private final static LatLng INITIAL_LOCATION = new LatLng(38.564, 138.978);
     private final static float INITIAL_ZOOM_LEVEL = (float) 5;
     private final static float CLOSE_ZOOM_LEVEL = (float) 13;
@@ -47,8 +47,8 @@ public class MapsActivity extends FragmentActivity {
     private LatLng backLatLng;
 
     private final static String FeedURL[] = {"http://www3.nhk.or.jp/rss/news/cat1.xml",
-            "http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml"};
-
+                                             "http://rss.dailynews.yahoo.co.jp/fc/local/rss.xml"};
+    // current news info
     private ArrayList<NewsInfo> mNewsInfo;
     private int currentNewsID = 0;
     private ArrayList<Marker> mMarkers;
@@ -152,7 +152,13 @@ public class MapsActivity extends FragmentActivity {
         Button backButton = (Button) findViewById(R.id.backButton);
         backButton.setVisibility(backButtonVisibility);
 
+        // load rss and add markers on map
         loadRSS();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     @Override
@@ -193,6 +199,7 @@ public class MapsActivity extends FragmentActivity {
     private void loadRSS() {
         Log.i(TAG + "/loadRSS", "loadRSS");
         NetworkInfo nInfo = cm.getActiveNetworkInfo();
+        // if network connection fails, Toast warning text
         if (nInfo != null && nInfo.isConnected()) {
             mMap.clear();
             mMarkers.clear();
@@ -203,10 +210,10 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
+    // used in RSSLoader
     public ArrayList<NewsInfo> getNewsInfo() {
         return mNewsInfo;
     }
-
     public void setNewsInfo(ArrayList<NewsInfo> newsinfo) {
         mNewsInfo = newsinfo;
     }
@@ -235,6 +242,8 @@ public class MapsActivity extends FragmentActivity {
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 // set MAP configuration
+                // show zoom/myLocation button
+                // rotation disabled
                 mMap.getUiSettings().setZoomControlsEnabled(true);
                 mMap.getUiSettings().setRotateGesturesEnabled(false);
                 mMap.setMyLocationEnabled(true);
@@ -264,10 +273,10 @@ public class MapsActivity extends FragmentActivity {
                         List<NewsAbstList> nList = new ArrayList<>();
 
                         SimpleDateFormat sdf = new SimpleDateFormat(Consts.DATE_PATTERN);
+                        // show all news info at this location
                         for (int i = 0; i < newsIDList.size(); i++) {
                             NewsAbstList item = new NewsAbstList(
                                     mNewsInfo.get(newsIDList.get(i)).getTitle(),
-                                    //mNewsInfo.get(newsIDList.get(i)).getIssueDate().toString());
                                     sdf.format(mNewsInfo.get(newsIDList.get(i)).getIssueDate())
                             );
                             nList.add(item);
@@ -278,22 +287,6 @@ public class MapsActivity extends FragmentActivity {
                         NewsInfoListAdapter adapter = new NewsInfoListAdapter(getBaseContext(), 0, nList);
 
                         list.setAdapter(adapter);
-
-                        // NOT work (can't get event)
-//                        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                            @Override
-//                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                                Log.i(TAG+"/marker", "news list item clicked");
-//                                // show info window dialog
-//                                Bundle bundle = new Bundle();
-//                                bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID));
-//
-//                                NewsInfoDialog nid = new NewsInfoDialog();
-//                                nid.setArguments(bundle);
-//                                nid.show(getFragmentManager(), "newsInfoDialog");
-//                            }
-//                        });
-
                         return view;
                     }
 
@@ -303,7 +296,6 @@ public class MapsActivity extends FragmentActivity {
                         return null;
                     }
                 });
-
 
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
@@ -336,19 +328,17 @@ public class MapsActivity extends FragmentActivity {
     }
 
     public void showNewsInfoDialog() {
+        // pass all news entry at this location
         Bundle bundle = new Bundle();
         ArrayList<Integer> newsIDList = mNewsAtSameLocation.get(currentNewsLocationID);
         bundle.putInt("newsEntryNum",newsIDList.size());
         for(int i = 0; i<newsIDList.size(); i++){
-            //bundle.putParcelable("newsEntry", mNewsInfo.get(currentNewsID));
             bundle.putParcelable("newsEntry" + i, mNewsInfo.get(newsIDList.get(i)));
         }
 
         NewsInfoDialog nid = new NewsInfoDialog();
         nid.setArguments(bundle);
-        nid.show(
-
-        getFragmentManager(),            "newsInfoDialog");
+        nid.show( getFragmentManager(), "newsInfoDialog");
     }
 
     // menu
@@ -383,6 +373,7 @@ public class MapsActivity extends FragmentActivity {
                 // delete current news info
                 mNewsInfo.clear();
                 currentNewsID=0;
+                currentNewsLocationID=0;
                 loadRSS();
                 sp.edit().putBoolean("needRefresh", false).commit();
             }
@@ -398,8 +389,9 @@ public class MapsActivity extends FragmentActivity {
         MakeMarkers();
     }
 
+    // group news entry at the same location
+    // and put marker per location
     public void MakeMarkers(){
-
         mLatLngList.clear();
         mNewsAtSameLocation.clear();
 
@@ -431,7 +423,7 @@ public class MapsActivity extends FragmentActivity {
             mo.snippet(String.valueOf(i));
             mo.draggable(false);
 
-            // set icon color depending on its issue_date
+            // set icon color depending on its (newest) issue_date
             long current = currentTimeMillis();
             long x = current - (entry.getIssueDate()!=null? entry.getIssueDate().getTime() :0);
             BitmapDescriptor icon;
@@ -506,4 +498,5 @@ public class MapsActivity extends FragmentActivity {
         showPrevMarker(false);
         showNewsInfoDialog();
     }
+
 }

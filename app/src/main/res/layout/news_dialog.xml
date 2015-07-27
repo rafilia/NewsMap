@@ -30,8 +30,9 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="horizontal"
+        android:layout_weight="0.8"
         >
 
         <Button android:id="@+id/newsDialog_new"
@@ -42,6 +43,12 @@
             android:enabled="false"
             android:text="＜"
             />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            >
         <ScrollView android:id="@+id/newsDialog_descView"
             android:layout_width="match_parent"
             android:layout_height="300dp"
@@ -54,6 +61,25 @@
                 android:text="description"
                 />
         </ScrollView>
+
+        <WebView android:id="@+id/newsDialog_webview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15px"
+            android:layout_weight="0.8">
+            </WebView>
+
+         <ProgressBar android:id="@+id/newsDialog_progress"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             style="@android:style/Widget.ProgressBar.Inverse"
+             android:layout_gravity="center"
+             android:indeterminate="true"
+             android:visibility="gone"
+             />
+
+        </FrameLayout>
+
         <Button android:id="@+id/newsDialog_old"
             android:layout_width="40dp"
             android:layout_height="70dp"

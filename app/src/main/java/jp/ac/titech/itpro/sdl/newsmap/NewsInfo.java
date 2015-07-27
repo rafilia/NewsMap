@@ -10,6 +10,7 @@ import java.util.Date;
 /**
  * Created by tm on 2015/07/19.
  */
+// News Entry
 public class NewsInfo implements Parcelable{
     private int id;
     private String title;

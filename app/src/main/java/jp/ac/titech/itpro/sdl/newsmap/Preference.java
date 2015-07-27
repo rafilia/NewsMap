@@ -10,6 +10,9 @@ import android.util.Log;
 /**
  * Created by tm on 2015/07/21.
  */
+// preference activity
+// RSS Feed ... 0:NHK, 1:yahoo
+// max RSS load num ... 25/50/75/100
 public class Preference extends Activity {
     private final static String TAG = "Preference";
     private myPrefFragment mFragment;
@@ -35,23 +38,34 @@ public class Preference extends Activity {
 
             ListPreference LoadMaxValue = (ListPreference) findPreference("prefMaxLoadNum");
             LoadMaxValue.setSummary(LoadMaxValue.getValue());
+
+            ListPreference ModeList = (ListPreference) findPreference("prefMode");
+            ModeList.setSummary(ModeList.getValue());
         }
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-            // change summary
+            // change summary dynamically
             if(s.equals("prefRSSFeed")) {
                 ListPreference RSSFeedList = (ListPreference) findPreference ("prefRSSFeed");
                 RSSFeedList.setSummary(getResources().getStringArray(R.array.RSS_feeds)[Integer.parseInt(RSSFeedList.getValue())]);
                 Log.i(TAG + "/changed", "set rss summary");
+
+                // to be reloaded RSS after return to main activity
+                sharedPreferences.edit().putBoolean("needRefresh", true).commit();
             } else if(s.equals("prefMaxLoadNum")){
                 ListPreference LoadMaxValue = (ListPreference) findPreference("prefMaxLoadNum");
                 LoadMaxValue.setSummary(LoadMaxValue.getValue());
                 Log.i(TAG + "/changed", "set load max value summary");
+
+                // to be reloaded RSS after return to main activity
+                sharedPreferences.edit().putBoolean("needRefresh", true).commit();
+            } else if(s.equals("prefMode")){
+                ListPreference ModeList = (ListPreference) findPreference("prefMode");
+                ModeList.setSummary(ModeList.getValue());
+                Log.i(TAG + "/changed", "set View Mode");
             }
 
-            // to be reloaded RSS after return to main activity
-            sharedPreferences.edit().putBoolean("needRefresh", true).commit();
         }
 
         @Override

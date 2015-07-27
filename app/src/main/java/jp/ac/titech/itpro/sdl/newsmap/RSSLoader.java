@@ -30,6 +30,12 @@ import java.util.regex.Pattern;
 /**
  * Created by tm on 2015/07/19.
  */
+// in onPreExecute ... show dialog
+// in DoInBackground
+//  1. if mNewsInfo is empty load RSS (else skip load)
+//  2. for each RSS entry search location info (with regex)
+//  3. if find location, calc LatLang with Geocoder API and add to mNewsInfo
+// in onPostExecute ... put markers on the map
 public class RSSLoader extends AsyncTask<String, Integer, Void> {
     private final static String TAG = "RSSLoader";
     private MapsActivity mMapsActivity;
@@ -41,7 +47,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
     private SharedPreferences sp;
 
     // for location search
-    private final static String address_re = "((北海道|東京都*|(京都|大阪)府*|(鹿児島|神奈川|和歌山)県*|.{2}県).{1,8}(村|町|市|区))";
+    private final static String address_re = "((北海道|東京都*|(京都|大阪)府*|(鹿児島|神奈川|和歌山)県*|.{2}県).{1,6}(村|町|市|区|島|山|川|駅))";
     private final static Pattern address_pattern = Pattern.compile(address_re);
 
     private final static String pref_re = "(北海道|東京都*|(京都|大阪)府*|" +
@@ -50,7 +56,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
             "徳島|高知|愛媛|香川|" + "福岡|佐賀|長崎|熊本|宮崎|大分|鹿児島|沖縄)県*";
     private final static Pattern pref_pattern = Pattern.compile(pref_re);
 
-    private final static String district_re = "(関東|関西|中国|近畿|九州|北海道|関東甲信越|北陸|東海|奄美)地方";
+    private final static String district_re = "((関東|関西|中国|近畿|九州|北海道|関東甲信越|北陸|東海|奄美)地方|北方領土)";
     private final static Pattern district_pattern = Pattern.compile(district_re);
 
     private final static String video_re = "videonews";
@@ -108,7 +114,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
             URL feedurl = new URL(params[mFeedNumber]);
             SyndFeedInput input = new SyndFeedInput();
             SyndFeed feed = input.build(new XmlReader(feedurl));
-            mProgressDialog.setProgress(20);
+            //mProgressDialog.setProgress(20);
 
             // Search Location
             int i = 0;
@@ -118,7 +124,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                 if (isCancelled()) {
                     return null;
                 }
-                mProgressDialog.setProgress(i + 20);
+                //mProgressDialog.setProgress(i + 20);
 
                 // Get RSS entry info
                 SyndEntry entry = (SyndEntry) obj;
@@ -140,7 +146,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
 
                 // GET main article
                 String main_text = "";
-                // yahoo
+                // for yahoo
                 if (mFeedNumber == Consts.FEED_YAHOO) {
                     // GET 'Detailed Link'
                     org.jsoup.nodes.Document doc = Jsoup.connect(entry_url).get();
@@ -158,11 +164,15 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                         // textnews
                         main_text = doc2.select("p.ynDetailText").first().text();
                     }
-                    // nhk
+                    // for nhk
                 } else if (mFeedNumber == Consts.FEED_NHK) {
-                    main_text = entry.getDescription().getValue();
+                    //main_text = entry.getDescription().getValue();
+
+                    // to get detailed main text
+                    org.jsoup.nodes.Document doc = Jsoup.connect(entry_url).get();
+                    main_text = doc.getElementById("news_textbody").text() + doc.getElementById("news_textmore").text();
                 }
-                Log.i(TAG + "/main text", main_text);
+                Log.i(TAG + "/main_text", main_text);
 
                 // find location info
                 String entry_location = "";
@@ -182,8 +192,6 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                 }
 
                 if(!entry_location.isEmpty()){
-                //if (m.find()) {
-                    //entry_location = m.group();
                     Log.i(TAG + "/Location", entry_location);
 
                     List<Address> addressList = geocoder.getFromLocationName(entry_location, 1);
@@ -201,17 +209,12 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
                     Log.i(TAG + "/Location", "location cannot detect");
                 }
 
-                // add all entry (even if location not found)
-                //NewsInfo newsEntry = new NewsInfo(i, entry_title, entry_url, entry_location, entry_date, entry_latlng, main_text);
-                //mNewsInfo.add(newsEntry);
-
                 if (i++ == mLoadNumber) break;
             }
         } catch  (Exception e) {
             e.printStackTrace();
         }
 
-        //Collections.sort(mNewsInfo, new NewsInfoComparator());
         mMapsActivity.setNewsInfo(mNewsInfo);
         return null;
     }
