@@ -35,7 +35,7 @@ public class NewsInfoDialog extends DialogFragment {
 
     private TextView descText;
     private View mProgressBar;
-    private Boolean mLoadingError = false;
+    private Boolean mLoadingError;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -58,13 +58,15 @@ public class NewsInfoDialog extends DialogFragment {
         TextView issueDateText = (TextView) dialog.findViewById(R.id.newsDialog_issueDate);
         TextView urlText = (TextView) dialog.findViewById(R.id.newsDialog_url);
 
+        // show detailed text in TextView or WebView
         descText = (TextView) dialog.findViewById(R.id.newsDialog_descText);
         WebView webView = (WebView) dialog.findViewById(R.id.newsDialog_webview);
-        mProgressBar = (View) dialog.findViewById(R.id.newsDialog_progress);
+        mProgressBar = dialog.findViewById(R.id.newsDialog_progress);
+        mLoadingError = false;
         if(textMode) {
             webView.setVisibility(View.GONE);
             descText.setText(nList.get(currentLocalNewsID).getContents());
-       } else {
+        } else {
             descText.setVisibility(View.GONE);
             webView.setWebViewClient(new WebViewClient() {
                                          @Override
@@ -76,12 +78,14 @@ public class NewsInfoDialog extends DialogFragment {
                                          @Override
                                          public void onPageFinished(WebView view, String url) {
                                              super.onPageFinished(view, url);
+                                             // if error occurs, show text instead
                                              if(mLoadingError){
+                                                 Log.i(TAG,"Load error happen");
                                                  descText.setVisibility(View.VISIBLE);
                                                  descText.setText("web page load error\n\n" + nList.get(currentLocalNewsID).getContents());
-                                             } else {
-                                                 mProgressBar.setVisibility(View.GONE);
+                                                 view.setVisibility(View.GONE);
                                              }
+                                             mProgressBar.setVisibility(View.GONE);
                                          }
 
                                          @Override

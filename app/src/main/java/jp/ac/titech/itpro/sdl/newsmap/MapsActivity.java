@@ -225,24 +225,30 @@ public class MapsActivity extends FragmentActivity {
         if(rssLoader != null && !rssLoader.isFinished()) return;
 
         Log.i(TAG + "/loadRSS", "loadRSS");
-        NetworkInfo nInfo = cm.getActiveNetworkInfo();
-        // if network connection fails, Toast warning text
-        if (nInfo != null && nInfo.isConnected()) {
-            if(force_reload) {
-                mLatLngList.clear();
-                mNewsAtSameLocation.clear();
-                mNewsInfo.clear();
-                currentNewsID = 0;
-                currentNewsLocationID = 0;
+        if(force_reload || mNewsInfo.isEmpty()) {
+            NetworkInfo nInfo = cm.getActiveNetworkInfo();
+            // if network connection fails, Toast warning tex
+            if (nInfo != null && nInfo.isConnected()) {
+                if (force_reload) {
+                    mLatLngList.clear();
+                    mNewsAtSameLocation.clear();
+                    mNewsInfo.clear();
+                    currentNewsID = 0;
+                    currentNewsLocationID = 0;
 
+                    force_reload = false;
+                }
+                mMap.clear();
+                mMarkers.clear();
+                rssLoader = new RSSLoader(this);
+                rssLoader.execute(FeedURL);
+            } else {
+                Toast.makeText(this, "No Network Connection! Cannot Load News Data!", Toast.LENGTH_LONG).show();
                 force_reload = false;
+                addMarkers();
             }
-            mMap.clear();
-            mMarkers.clear();
-            rssLoader = new RSSLoader(this);
-            rssLoader.execute(FeedURL);
         } else {
-            Toast.makeText(this, "No Network Connection! Cannot Load News Data!", Toast.LENGTH_LONG).show();
+            addMarkers();
         }
     }
 
