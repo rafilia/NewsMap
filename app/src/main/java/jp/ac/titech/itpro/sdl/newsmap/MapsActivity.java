@@ -25,6 +25,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,6 +65,9 @@ public class MapsActivity extends FragmentActivity {
     private ArrayList<ArrayList<Integer>> mNewsAtSameLocation;
     private int currentNewsLocationID = 0;
 
+    private Boolean force_reload;
+    private RSSLoader rssLoader;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +94,7 @@ public class MapsActivity extends FragmentActivity {
             @Override
             public void onClick(View view) {
                 // force reload map
-                mNewsInfo = new ArrayList<>();
-                currentNewsID = 0;
+                force_reload = true;
                 loadRSS();
             }
         });
@@ -128,9 +132,14 @@ public class MapsActivity extends FragmentActivity {
             }
         });
 
+        // load news info data
+        Gson gson = new Gson();
+        mNewsInfo = gson.fromJson(sp.getString("mNewsInfo",""), new TypeToken<ArrayList<NewsInfo>>(){}.getType());
         if (mNewsInfo == null) {
             mNewsInfo = new ArrayList<>();
         }
+        force_reload = false;
+
         mMarkers = new ArrayList<>();
         mLatLngList = new ArrayList<>();
         mNewsAtSameLocation = new ArrayList<>();
@@ -152,12 +161,25 @@ public class MapsActivity extends FragmentActivity {
         Button backButton = (Button) findViewById(R.id.backButton);
         backButton.setVisibility(backButtonVisibility);
 
+        // auto update
+        Long current = System.currentTimeMillis();
+        Long lastUpdate = sp.getLong("lastUpdate", 0);
+        int updateInterval = Integer.parseInt(sp.getString("prefUpdate", "0"));
+        Log.i(TAG , "update interval " + sp.getString("prefUpdate", "0"));
+        Log.i(TAG , "current/last "+ current + "/" + lastUpdate);
+        if(updateInterval != 0 && (current - lastUpdate) > (1000 * 3600 * updateInterval)){
+            force_reload = true;
+        }
         // load rss and add markers on map
         loadRSS();
     }
 
     @Override
     protected void onStop() {
+        Gson gson = new Gson();
+        Log.i(TAG+"/onStop", gson.toJson(mNewsInfo));
+        // save news info data to shared preferences
+        sp.edit().putString("mNewsInfo", gson.toJson(mNewsInfo)).commit();
         super.onStop();
     }
 
@@ -196,14 +218,28 @@ public class MapsActivity extends FragmentActivity {
         backButtonVisibility = savedInstanceState.getInt("backButtonVisibility");
     }
 
+    // load RSS and put Markers on Map
     private void loadRSS() {
+        // only execute 1 thread at a time
+        // need to be fixed?
+        if(rssLoader != null && !rssLoader.isFinished()) return;
+
         Log.i(TAG + "/loadRSS", "loadRSS");
         NetworkInfo nInfo = cm.getActiveNetworkInfo();
         // if network connection fails, Toast warning text
         if (nInfo != null && nInfo.isConnected()) {
+            if(force_reload) {
+                mLatLngList.clear();
+                mNewsAtSameLocation.clear();
+                mNewsInfo.clear();
+                currentNewsID = 0;
+                currentNewsLocationID = 0;
+
+                force_reload = false;
+            }
             mMap.clear();
             mMarkers.clear();
-            RSSLoader rssLoader = new RSSLoader(this);
+            rssLoader = new RSSLoader(this);
             rssLoader.execute(FeedURL);
         } else {
             Toast.makeText(this, "No Network Connection! Cannot Load News Data!", Toast.LENGTH_LONG).show();
@@ -371,9 +407,7 @@ public class MapsActivity extends FragmentActivity {
             if(sp.getBoolean("needRefresh", false)){
                 Log.i(TAG, "to be refreshed");
                 // delete current news info
-                mNewsInfo.clear();
-                currentNewsID=0;
-                currentNewsLocationID=0;
+                force_reload = true;
                 loadRSS();
                 sp.edit().putBoolean("needRefresh", false).commit();
             }
@@ -392,23 +426,22 @@ public class MapsActivity extends FragmentActivity {
     // group news entry at the same location
     // and put marker per location
     public void MakeMarkers(){
-        mLatLngList.clear();
-        mNewsAtSameLocation.clear();
-
         // search News entries which have same latlng info
-        for(NewsInfo entry : mNewsInfo){
-            LatLng l = entry.getLatLng();
-            int index = mLatLngList.indexOf(l);
-            if(index == -1){
-                mLatLngList.add(l);
+        if(mLatLngList.isEmpty()) {
+            for (NewsInfo entry : mNewsInfo) {
+                LatLng l = entry.getLatLng();
+                int index = mLatLngList.indexOf(l);
+                if (index == -1) {
+                    mLatLngList.add(l);
 
-                ArrayList<Integer> list = new ArrayList<>();
-                list.add(entry.getID());
-                mNewsAtSameLocation.add(list);
-            } else {
-                ArrayList<Integer> list = mNewsAtSameLocation.get(index);
-                list.add(entry.getID());
-                mNewsAtSameLocation.set(index, list);
+                    ArrayList<Integer> list = new ArrayList<>();
+                    list.add(entry.getID());
+                    mNewsAtSameLocation.add(list);
+                } else {
+                    ArrayList<Integer> list = mNewsAtSameLocation.get(index);
+                    list.add(entry.getID());
+                    mNewsAtSameLocation.set(index, list);
+                }
             }
         }
 

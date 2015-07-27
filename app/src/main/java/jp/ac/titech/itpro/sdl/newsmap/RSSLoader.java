@@ -62,6 +62,8 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
     private final static String video_re = "videonews";
     private final static Pattern videonews_pattern = Pattern.compile(video_re);
 
+    private Boolean isFinished = false;
+
     public RSSLoader (MapsActivity activity){
         sp = PreferenceManager.getDefaultSharedPreferences(activity);
 
@@ -79,8 +81,8 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
     protected void onPreExecute() {
         mProgressDialog = new ProgressDialog(mMapsActivity);
         mProgressDialog.setMessage("Now Loading...");
-        //mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        //mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -109,6 +111,7 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
         }
 
         try {
+            mProgressDialog.setProgress(5);
             // Get RSS Feed
             Log.i(TAG + "/url", params[mFeedNumber]);
             URL feedurl = new URL(params[mFeedNumber]);
@@ -122,9 +125,10 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
             Geocoder geocoder = new Geocoder(mMapsActivity, Locale.getDefault());
             for (Object obj : feed.getEntries()) {
                 if (isCancelled()) {
+                    mProgressDialog.dismiss();
                     return null;
                 }
-                //mProgressDialog.setProgress(i + 20);
+                mProgressDialog.setProgress((int) (20+((i+1)/(float)mLoadNumber)*75));
 
                 // Get RSS entry info
                 SyndEntry entry = (SyndEntry) obj;
@@ -215,6 +219,8 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
             e.printStackTrace();
         }
 
+        Long lastUpdate = System.currentTimeMillis();
+        sp.edit().putLong("lastUpdate", lastUpdate).commit();
         mMapsActivity.setNewsInfo(mNewsInfo);
         return null;
     }
@@ -222,15 +228,19 @@ public class RSSLoader extends AsyncTask<String, Integer, Void> {
     @Override
     protected void onPostExecute(Void result) {
         // put markers on the map
+        mProgressDialog.setProgress(98);
         mMapsActivity.addMarkers();
-        if(mProgressDialog != null) {
-            mProgressDialog.dismiss();
-        }
+        mProgressDialog.dismiss();
+        isFinished = true;
     }
 
     @Override
     protected void onCancelled() {
         Log.d(TAG+"/onCancelled", "cancelled");
         sp.edit().putBoolean("needRefresh", true).commit();
+    }
+
+    public Boolean isFinished(){
+        return isFinished;
     }
 }

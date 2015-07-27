@@ -32,4 +32,14 @@
         android:dialogTitle="Choose View mode"
         />
 
+    <ListPreference
+        android:key="prefUpdate"
+        android:defaultValue="6"
+        android:title="Auto Update Interval"
+        android:summary="Choose Update Interval"
+        android:entries="@array/Update_mode"
+        android:entryValues="@array/Update_mode_value"
+        android:dialogTitle="Choose Update Interval"
+        />
+
 </PreferenceScreen>
