@@ -63,6 +63,8 @@ public class MapsActivity extends FragmentActivity {
     private ArrayList<ArrayList<Integer>> mNewsAtSameLocation;
     private int currentNewsLocationID = 0;
 
+    private RSSLoader rssLoader;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,13 +199,17 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void loadRSS() {
+        // only execute 1 thread at a time
+        // need to be fixed?
+        if(rssLoader != null && !rssLoader.isFinished()) return;
+
         Log.i(TAG + "/loadRSS", "loadRSS");
         NetworkInfo nInfo = cm.getActiveNetworkInfo();
         // if network connection fails, Toast warning text
         if (nInfo != null && nInfo.isConnected()) {
             mMap.clear();
             mMarkers.clear();
-            RSSLoader rssLoader = new RSSLoader(this);
+            rssLoader = new RSSLoader(this);
             rssLoader.execute(FeedURL);
         } else {
             Toast.makeText(this, "No Network Connection! Cannot Load News Data!", Toast.LENGTH_LONG).show();
